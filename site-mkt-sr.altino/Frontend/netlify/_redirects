@@ -1,0 +1,5 @@
+/login /login.html 200
+/admin /proprietario.html 200
+/qr /qr.html 200
+/confirmar /confirmar.html 200
+/* /index.html 200

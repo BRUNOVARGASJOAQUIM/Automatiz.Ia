@@ -1,0 +1,278 @@
+{
+  "case_study": {
+    "title": "Sr. Altino: 5x Crescimento de Clientes com WhatsApp + N8N",
+    "date": "2026-04-18",
+    "region": "São Paulo - Zona Oeste",
+    "target_audience": "Executivos + Casais",
+    
+    "market_data": {
+      "bars_in_zone": {
+        "total": "450-550",
+        "premium_segment": "120-150",
+        "market_size_annual": "R$ 2-3 bilhões"
+      },
+      
+      "average_establishment": {
+        "customers_per_week": "250-300",
+        "monthly_revenue": "R$ 35.000-45.000",
+        "average_ticket": "R$ 80-100",
+        "customer_frequency": "2x/semana",
+        "operational_margin": "65-70%",
+        "active_customer_base": "400-600"
+      },
+      
+      "sazonality": {
+        "monday_wednesday": {
+          "occupancy": "40-50%",
+          "daily_revenue": "R$ 2.500-3.500"
+        },
+        "wednesday_friday": {
+          "occupancy": "70-80%",
+          "daily_revenue": "R$ 5.000-7.000"
+        },
+        "saturday": {
+          "occupancy": "85-95%",
+          "daily_revenue": "R$ 7.000-9.000"
+        },
+        "sunday": {
+          "occupancy": "60-70%",
+          "daily_revenue": "R$ 4.000-5.000"
+        }
+      }
+    },
+    
+    "competitors": [
+      {
+        "name": "Bar Brahma Pinheiros",
+        "location": "Pinheiros",
+        "profile": "Happy hour premium",
+        "size": "Grandes",
+        "target_audience": "Executivos"
+      },
+      {
+        "name": "Bar Seu Zé",
+        "location": "Butantã",
+        "profile": "Casual + noite",
+        "size": "Médio",
+        "target_audience": "Misto"
+      },
+      {
+        "name": "Boteco do Thiago",
+        "location": "Morumbi",
+        "profile": "Boteco/casual",
+        "size": "Pequeno",
+        "target_audience": "Casais/grupos"
+      },
+      {
+        "name": "Liga da Cerveja",
+        "location": "Alto Pinheiros",
+        "profile": "Craft beer",
+        "size": "Médio",
+        "target_audience": "Público específico"
+      },
+      {
+        "name": "Bar do Antônio",
+        "location": "Itaim",
+        "profile": "Happy hour",
+        "size": "Médio-Grande",
+        "target_audience": "Executivos"
+      }
+    ],
+    
+    "lead_capture_before": {
+      "visitors_per_week": "250-300",
+      "manual_leads_captured": "5-15",
+      "capture_rate": "2-5%",
+      "leads_lost": "95-98%",
+      "followup_rate": "0-10%",
+      "total_conversion": "<1%",
+      "monthly_new_customers": "2-3"
+    },
+    
+    "lead_capture_after_automation": {
+      "monthly_captured_leads": 200,
+      "capture_rate": "15-25%",
+      "followup_automation": "80-95%",
+      "conversion_rate": "5-8%",
+      "monthly_new_customers": 14,
+      "customer_multiplier": "5-7x"
+    },
+    
+    "ticket_analysis": {
+      "beer_chopp": {
+        "name": "Cerveja/Chopp",
+        "average_price": "R$ 15-25"
+      },
+      "premium_drink": {
+        "name": "Bebida Premium",
+        "average_price": "R$ 30-50"
+      },
+      "soft_drink": {
+        "name": "Refrigerante/Suco",
+        "average_price": "R$ 8-12"
+      },
+      "appetizer": {
+        "name": "Petisco/Entrada",
+        "average_price": "R$ 15-30"
+      },
+      "sharing_plate": {
+        "name": "Prato de Compartilhar",
+        "average_price": "R$ 60-120"
+      },
+      "average_ticket": "R$ 80-100",
+      "profit_margin": "65-70%"
+    },
+    
+    "automation_system": {
+      "flow": [
+        "Cliente escaneia QR Code no bar",
+        "Preenche formulário rápido (nome + WhatsApp)",
+        "N8N recebe dados em tempo real",
+        "Mensagem automática no WhatsApp",
+        "Gatilhos de remarketing acionados",
+        "Follow-up programado"
+      ],
+      "success_rate": "85%",
+      "time_to_implement": "2 semanas"
+    },
+    
+    "investment": {
+      "initial": {
+        "n8n_setup": "R$ 2.000-3.000",
+        "whatsapp_business_api": "R$ 500-1.000",
+        "qr_codes_printing": "R$ 200",
+        "training_setup": "R$ 1.000",
+        "total": "R$ 3.700-5.200"
+      },
+      "recurring_monthly": {
+        "whatsapp_api": "R$ 500-800",
+        "n8n_server": "R$ 300-500",
+        "management_hours": "R$ 500",
+        "total": "R$ 1.300-1.800"
+      },
+      "annual_cost": "R$ 19.200"
+    },
+    
+    "revenue_projection": {
+      "new_customers_monthly": 15,
+      "average_ticket": 90,
+      "visits_per_month": 3,
+      "gross_monthly_revenue": "R$ 4.050",
+      "profit_margin": 0.65,
+      "monthly_profit": "R$ 2.633",
+      "annual_profit": "R$ 31.600"
+    },
+    
+    "payback_analysis": {
+      "initial_investment": -5000,
+      "monthly_costs": -1600,
+      "monthly_profit": 2633,
+      "monthly_contribution": 1033,
+      "payback_months": 4,
+      "payback_date": "Mês 4",
+      "year1_roi": "65%",
+      "year2_onwards_annual": "R$ 31.600"
+    },
+    
+    "comparison": {
+      "without_automation": {
+        "new_customers_annually": "25-30",
+        "additional_revenue": "R$ 3.000-5.000"
+      },
+      "with_automation": {
+        "new_customers_annually": "180-240",
+        "additional_revenue": "R$ 31.600",
+        "multiplier": "6-8x"
+      }
+    },
+    
+    "market_benchmarks": {
+      "conversion_rates_by_channel": {
+        "whatsapp_business": "5-8%",
+        "email": "2-3%",
+        "sms": "4-6%",
+        "social_media": "1-2%"
+      },
+      "retention_rates": {
+        "without_automation": "20-30%",
+        "with_automation": "55-70%"
+      },
+      "frequency_increase": {
+        "without_automation": "2x/month",
+        "with_automation": "4-5x/month"
+      },
+      "growth_from_similar_bars": {
+        "whatsapp_only": "20-35%",
+        "with_advanced_automation": "30-50%",
+        "success_rate": "85%"
+      }
+    },
+    
+    "assumptions": {
+      "conservative_conversion_rate": "7% (market is 5-8%)",
+      "conservative_retention": "65% (market is 55-70%)",
+      "conservative_frequency": "3 visits/month",
+      "monthly_churn": "10%",
+      "replacement_from_new_leads": "Included"
+    },
+    
+    "risks": {
+      "low_qr_adoption": {
+        "description": "If <5% of customers scan QR",
+        "impact": "50% reduction in leads",
+        "mitigation": "Place QR in visible areas"
+      },
+      "poor_content_quality": {
+        "description": "Bad messaging kills conversion",
+        "impact": "Conversion drops to 2-3%",
+        "mitigation": "Test messages before launch"
+      },
+      "seasonality": {
+        "description": "Vacation periods reduce visits",
+        "impact": "30% revenue reduction",
+        "mitigation": "Plan campaigns around peak periods"
+      },
+      "competition": {
+        "description": "Other bars implement similar system",
+        "impact": "Commoditization of feature",
+        "mitigation": "Build unique experience + offers"
+      }
+    },
+    
+    "metrics_to_monitor": {
+      "weekly": [
+        "Leads captured",
+        "QR scan rate",
+        "Active conversations"
+      ],
+      "monthly": [
+        "Conversion rate",
+        "New customers acquired",
+        "Customer retention",
+        "Average order value",
+        "Monthly revenue"
+      ],
+      "quarterly": [
+        "Customer lifetime value",
+        "NPS (Net Promoter Score)",
+        "Churn rate",
+        "ROI calculation"
+      ]
+    },
+    
+    "implementation_timeline": {
+      "week_1": "N8N setup + WhatsApp API configuration",
+      "week_2": "Testing and message adjustments",
+      "week_3": "Production deployment",
+      "week_4_onwards": "Monitoring, optimization, and scaling"
+    },
+    
+    "recommendation": "HIGHLY VIABLE - Implement immediately",
+    
+    "supporting_documents": [
+      "CASE-STUDY-SR-ALTINO-ANALISE-MERCADO.md",
+      "DATA-STRUCTURE-CONVERSAO.json",
+      "ROI-CALCULATOR.xlsx"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+[build]
+  command = ""
+  publish = "."
+
+[[redirects]]
+  from = "/login"
+  to = "/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/proprietario.html"
+  status = 200
+
+[[redirects]]
+  from = "/qr"
+  to = "/qr.html"
+  status = 200
+
+[[redirects]]
+  from = "/confirmar"
+  to = "/confirmar.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "max-age=3600"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"

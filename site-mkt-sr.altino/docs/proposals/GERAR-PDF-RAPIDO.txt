@@ -1,0 +1,167 @@
+# 🚀 GUIA RÁPIDO: GERAR PDF EM 30 SEGUNDOS
+
+---
+
+## ✅ VERSÃO RECOMENDADA
+
+**Use**: `PROPOSTA-SHOWZAP-COM-LOGO.html`
+
+(Esta versão já tem o logo integrado - não precisa de arquivo separado)
+
+---
+
+## 📄 PASSO A PASSO (Super Rápido)
+
+### 1️⃣ Abrir no Navegador
+
+```
+→ Clique 2x no arquivo: PROPOSTA-SHOWZAP-COM-LOGO.html
+→ Abre no navegador automaticamente
+```
+
+Ou:
+```
+→ Chrome/Firefox
+→ Ctrl+O
+→ Selecionar arquivo
+```
+
+### 2️⃣ Personalizar (30 seg)
+
+```
+Procure e troque:
+
+[NOME DO CLIENTE]  → Sr. Altino Bar
+[SEU NOME]        → Seu nome
+[seu-email@automatiz.ia] → seu-email@gmail.com
+[11 9XXXX-XXXX]   → seu WhatsApp
+YOUR_NUMBER       → seu WhatsApp (sem formatação)
+```
+
+**Como:**
+```
+Ctrl+H → Find & Replace
+Ou editar manualmente (F12 → Elements)
+```
+
+### 3️⃣ Gerar PDF (10 seg)
+
+```
+Pressione: Ctrl+P (Windows/Linux) ou Cmd+P (Mac)
+
+Configurações:
+├─ Destino: "Salvar como PDF"
+├─ Margem: "Mínima" ou "Nenhuma"
+└─ Fundo: Deixar desativado
+
+Clicar: "Salvar"
+
+Pronto! ✅
+```
+
+---
+
+## 📊 O que o PDF Contém
+
+```
+✅ Logo Automatiz.ia (no topo)
+✅ Proposta profissional completa
+✅ 3 planos de preço
+✅ ROI e payback
+✅ Garantias
+✅ Tabela de resultados
+✅ Espaço para assinatura
+✅ Cores e formatação perfeita
+```
+
+---
+
+## 💡 DICAS
+
+### PDF sai com logo distorcido?
+```
+Chrome: Ctrl+P → Escala: 90-95%
+```
+
+### Letras muito pequenas?
+```
+Chrome: Ctrl+P → Escala: 105-110%
+```
+
+### Fundo branco saindo cinza?
+```
+Chrome: Marcar "Imprimir fundo" (opcional)
+Firefox: Marcar "Imprimir fundo"
+```
+
+### Salvar em local específico?
+```
+Ctrl+P → Salvar → Escolher pasta
+```
+
+---
+
+## 📧 ENVIAR PARA CLIENTE
+
+```
+Email:
+Assunto: Proposta Showzap - [Nome do Cliente]
+
+Corpo:
+"Olá [Nome],
+
+Segue proposta customizada conforme conversamos.
+
+Detalhes:
+• Implementação: R$ XXX
+• Manutenção: R$ XX/mês
+• ROI: Payback em [X] dias
+
+Qualquer dúvida, me avisa!
+
+Abraços"
+
+Anexar: PROPOSTA-SHOWZAP-COM-LOGO.pdf
+```
+
+---
+
+## 🎯 ALTERNATIVAS
+
+### Se não conseguir gerar PDF local:
+
+**Opção 1: Google Drive**
+```
+1. Abrir Google Drive
+2. Upload do arquivo HTML
+3. Google Drive abre automaticamente
+4. File → Download → PDF
+```
+
+**Opção 2: Online Converter**
+```
+https://html2pdf.com/
+→ Copy-paste do HTML
+→ Generate
+→ Download PDF
+```
+
+---
+
+## 📋 CHECKLIST FINAL
+
+- [ ] Arquivo HTML aberto no navegador
+- [ ] Logo visível no topo
+- [ ] Nome do cliente correto
+- [ ] Preços conforme combinado
+- [ ] Link WhatsApp funciona
+- [ ] PDF gerado sem erros
+- [ ] Todas as seções visíveis
+- [ ] Pronto para enviar! ✅
+
+---
+
+**É isso! Proposta pronta em menos de 1 minuto.**
+
+Boa sorte nas vendas! 🚀
+

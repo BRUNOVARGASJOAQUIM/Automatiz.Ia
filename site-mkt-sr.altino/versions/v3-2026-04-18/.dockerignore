@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+.npm
+.node-gyp
+
+# Docker
+Dockerfile
+docker-compose.yml
+.docker
+.dockerignore
+
+# IDE
+.vscode
+.idea
+*.sublime-project
+*.sublime-workspace
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Backups e arquivos temporários
+*.bak
+*.tmp
+*.old
+.backup
+/tmp
+
+# Logs
+*.log
+logs/
+
+# Outros
+/v0-*
+*.zip
+README.md
+DOCKER.md
+.git/
+
+# Versão anterior
+v0-2026-04-18/

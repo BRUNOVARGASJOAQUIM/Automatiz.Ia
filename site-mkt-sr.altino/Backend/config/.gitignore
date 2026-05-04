@@ -1,0 +1,47 @@
+# IDE & Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Ambiente
+.env
+.env.local
+.env.*.local
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Node (se usar npm)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Logs
+*.log
+logs/
+
+# Temporários
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+.backup/
+
+# Versões anteriores (backups)
+v0-*/
+*.zip
+
+# Build
+/dist
+/build
+.cache/
+
+# OS
+.DS_Store
+.vscode/settings.json
+Thumbs.db

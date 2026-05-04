@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Área do Proprietário - Sr. Altino</title>
+  <style>
+    :root {
+      --bg: #070909;
+      --card: rgba(255, 255, 255, 0.07);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text: #f4f4f0;
+      --muted: #b6b8b3;
+      --accent: #22f27a;
+      --accent-dark: #10cf5f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top left, rgba(34, 242, 122, 0.09), transparent 26%),
+                  radial-gradient(circle at right center, rgba(34, 242, 122, 0.06), transparent 20%),
+                  var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: calc(100% - 24px);
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(14px);
+      background: rgba(7, 9, 9, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px 0;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .brand-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(34, 242, 122, 0.12);
+      border: 1px solid rgba(34, 242, 122, 0.35);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .nav-links {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .nav-links a {
+      text-align: center;
+      font-size: 13px;
+      padding: 10px 8px;
+      color: var(--muted);
+    }
+
+    .header-proprietario {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px 0;
+      margin-bottom: 24px;
+    }
+
+    .header-proprietario h1 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: 24px;
+    }
+
+    .header-proprietario > div:first-child p {
+      color: var(--muted);
+      margin: 4px 0 0;
+      font-size: 13px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #04120a;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .user-details h3 {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .user-details p {
+      margin: 0;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .btn-logout {
+      background: rgba(255, 100, 100, 0.1);
+      border: 1px solid rgba(255, 100, 100, 0.3);
+      color: #ff6464;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 12px;
+      font-weight: 600;
+      min-width: 80px;
+    }
+
+    .btn-logout:active {
+      background: rgba(255, 100, 100, 0.2);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .dashboard-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .dashboard-card h3 {
+      font-family: Georgia, serif;
+      font-size: 24px;
+      margin: 0 0 8px;
+      color: var(--accent);
+    }
+
+    .dashboard-card .stat {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 8px 0;
+    }
+
+    .dashboard-card p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .section-proprietario {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 16px;
+    }
+
+    .section-proprietario h2 {
+      font-family: Georgia, serif;
+      font-size: 18px;
+      margin: 0 0 14px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    table th {
+      background: rgba(34, 242, 122, 0.1);
+      padding: 10px 8px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--accent);
+      font-size: 10px;
+    }
+
+    table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .status-confirmado {
+      background: rgba(34, 242, 122, 0.2);
+      color: var(--accent);
+    }
+
+    .status-pendente {
+      background: rgba(255, 200, 0, 0.2);
+      color: #ffc800;
+    }
+
+    .resumo-bottom {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (min-width: 640px) {
+      .resumo-bottom {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .event-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .event-item:last-child { border-bottom: none; }
+
+    .event-date-badge {
+      background: rgba(34,242,122,0.12);
+      border: 1px solid rgba(34,242,122,0.25);
+      border-radius: 8px;
+      padding: 6px 10px;
+      text-align: center;
+      min-width: 44px;
+      flex-shrink: 0;
+    }
+
+    .event-date-badge .day {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .event-date-badge .month {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .event-info .event-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .event-info .event-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .activity-dot.vip { background: var(--accent); }
+    .activity-dot.reserva { background: #a78bfa; }
+
+    .activity-info .activity-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .activity-info .activity-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ABAS */
+    .tabs {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* UPLOAD DE IMAGEM */
+    .upload-zone {
+      border: 2px dashed rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s;
+      position: relative;
+      background: rgba(255,255,255,0.03);
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(34,242,122,0.05);
+    }
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: none;
+      padding: 0;
+      min-height: unset;
+    }
+    .upload-icon { font-size: 22px; margin-bottom: 6px; }
+    .upload-text { color: var(--muted); font-size: 12px; pointer-events: none; }
+    .img-preview-wrap { position: relative; display: inline-block; margin-top: 8px; }
+    .img-preview { max-height: 110px; border-radius: 8px; display: block; }
+    .img-remove {
+      position: absolute;
+      top: -8px; right: -8px;
+      background: rgba(255,80,80,0.9);
+      border: none;
+      color: white;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+      display: grid;
+      place-items: center;
+    }
+
+    /* PÚBLICO-ALVO */
+    .audience-section {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .audience-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+    .audience-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .audience-opt {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      text-transform: none;
+      letter-spacing: 0;
+      cursor: pointer;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 7px 12px;
+      transition: 0.15s;
+    }
+    .audience-opt:has(input:checked) {
+      border-color: var(--accent);
+      background: rgba(34,242,122,0.1);
+      color: var(--accent);
+    }
+    .audience-opt input[type="radio"] {
+      width: 14px; height: 14px;
+      min-height: unset;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+    .audience-count { margin-top: 10px; font-size: 11px; color: var(--muted); }
+    .audience-count strong { color: var(--accent); }
+
+    /* CONTADOR DE CARACTERES */
+    .char-counter { text-align: right; font-size: 10px; color: var(--muted); margin-top: 4px; }
+    .char-counter.warn { color: #ffc800; }
+    .char-counter.over { color: #ff6464; }
+
+    /* FORMULÁRIO DE CAMPANHA */
+    .campaign-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+
+    .campaign-form label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .campaign-form input,
+    .campaign-form select,
+    .campaign-form textarea {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text);
+      padding: 10px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .campaign-form select {
+      background: #0f1211;
+    }
+
+    .campaign-form select option,
+    select option {
+      background: #0f1211;
+      color: #f4f4f0;
+    }
+
+    .campaign-form textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .campaign-form button {
+      background: var(--accent);
+      color: #04120a;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: 0.2s;
+    }
+
+    .campaign-form button:active {
+      background: var(--accent-dark);
+    }
+
+    .btn-secondary {
+      background: rgba(34, 242, 122, 0.2);
+      color: var(--accent);
+    }
+
+    /* HISTÓRICO DE CAMPANHAS */
+    .campaign-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .campaign-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .campaign-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .campaign-type {
+      display: inline-block;
+      background: rgba(34, 242, 122, 0.15);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .campaign-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .campaign-content {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .campaign-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-small {
+      background: rgba(34, 242, 122, 0.15);
+      border: none;
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .btn-delete {
+      background: rgba(255, 100, 100, 0.15);
+      color: #ff6464;
+    }
+
+    .status-enviada {
+      background: rgba(34, 242, 122, 0.2);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+    }
+
+    .status-rascunho {
+      background: rgba(255, 200, 0, 0.2);
+      color: #ffc800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+    }
+
+    @media (min-width: 640px) {
+      .campaign-form {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .campaign-form label:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .campaign-form button {
+        grid-column: 1 / -1;
+      }
+    }
+
+    /* MODAL DE PRÉ-VISUALIZAÇÃO */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 20px;
+      width: calc(100% - 40px);
+      max-width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255, 100, 100, 0.1);
+      border: none;
+      color: #ff6464;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: grid;
+      place-items: center;
+    }
+
+    .preview-phone {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border: 8px solid #0f0f0f;
+      border-radius: 40px;
+      padding: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+      aspect-ratio: 9 / 19;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      margin: 20px 0;
+    }
+
+    .phone-screen {
+      background: #fff;
+      border-radius: 32px;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .phone-header {
+      background: #075e54;
+      color: white;
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .phone-header::before {
+      content: "SR. ALTINO BAR";
+      display: block;
+    }
+
+    .phone-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      background: #ecf0f1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #000;
+    }
+
+    .message-received {
+      background: #fff;
+      border-radius: 18px;
+      padding: 10px 12px;
+      max-width: 85%;
+      align-self: flex-start;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+
+    .message-time {
+      font-size: 10px;
+      color: #888;
+      text-align: right;
+      padding: 0 12px;
+      margin-top: 4px;
+    }
+
+    .preview-title {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .preview-info {
+      background: rgba(34, 242, 122, 0.1);
+      border-left: 3px solid var(--accent);
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-top: 16px;
+      color: var(--muted);
+    }
+
+    .preview-info strong {
+      color: var(--accent);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* INDICADORES */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .kpi-icon {
+      font-size: 32px;
+      display: grid;
+      place-items: center;
+      width: 60px;
+      height: 60px;
+      background: rgba(34, 242, 122, 0.1);
+      border-radius: 12px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 4px 0;
+    }
+
+    .kpi-detail {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .indicators-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .chart-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 8px;
+      align-items: flex-end;
+      height: 200px;
+      padding: 12px 0;
+    }
+
+    .chart-bar {
+      background: linear-gradient(180deg, var(--accent), rgba(34, 242, 122, 0.6));
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      cursor: pointer;
+      transition: 0.2s;
+      min-height: 20px;
+    }
+
+    .chart-bar:hover {
+      background: linear-gradient(180deg, var(--accent-dark), var(--accent));
+    }
+
+    .chart-label {
+      font-size: 9px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: var(--accent);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .chart-bar:hover .chart-tooltip {
+      opacity: 1;
+    }
+
+    .aniversariante-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 3px solid var(--accent);
+      padding: 12px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .aniversariante-info {
+      flex: 1;
+    }
+
+    .aniversariante-nome {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .aniversariante-data {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .aniversariante-whatsapp {
+      font-size: 11px;
+      color: var(--accent);
+    }
+
+    .insight-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 3px solid var(--accent);
+      padding: 12px;
+      border-radius: 6px;
+    }
+
+    .insight-title {
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .insight-text {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    @media (min-width: 640px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .indicators-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .kpi-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .kpi-icon {
+        margin: 0 auto;
+      }
+    }
+
+    .footer {
+      margin-top: 60px;
+      padding: 24px 0 32px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    @media (min-width: 640px) {
+      .nav-inner {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 16px 0;
+      }
+
+      .nav-links {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        width: auto;
+        max-width: none;
+      }
+
+      .header-proprietario {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+      }
+
+      .header-proprietario h1 {
+        font-size: 32px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .section-proprietario h2 {
+        font-size: 22px;
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      table th,
+      table td {
+        padding: 12px;
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-badge">VIP</div>
+        <div>SR. ALTINO</div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html">← Voltar ao site</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="header-proprietario">
+        <div>
+          <h1>Área do Proprietário</h1>
+          <p>Gerencie seu estabelecimento</p>
+        </div>
+        <div class="user-info">
+          <div class="user-details">
+            <h3 id="userName">Bem-vindo!</h3>
+            <p id="loginTime"></p>
+          </div>
+          <button class="btn-logout" onclick="AUTH.logout()">Sair</button>
+        </div>
+      </div>
+
+      <!-- ABAS DE NAVEGAÇÃO -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="mostrarAba('resumo')">📊 Resumo</button>
+        <button class="tab-btn" onclick="mostrarAba('indicadores')">📈 Indicadores</button>
+        <button class="tab-btn" onclick="mostrarAba('leads')">👥 Clientes Potenciais</button>
+        <button class="tab-btn" onclick="mostrarAba('reservas')">📋 Reservas</button>
+        <button class="tab-btn" onclick="mostrarAba('campanhas')">📢 Criar Campanha</button>
+        <button class="tab-btn" onclick="mostrarAba('gerenciarCampanhas')">🗂️ Gerenciar Campanhas</button>
+      </div>
+
+      <!-- ABA: RESUMO -->
+      <div id="resumo" class="tab-content active">
+
+      <div class="dashboard-grid">
+        <div class="dashboard-card">
+          <h3>📋</h3>
+          <div class="stat" id="totalReservas">0</div>
+          <p>Reservas cadastradas</p>
+        </div>
+        <div class="dashboard-card">
+          <h3>👥</h3>
+          <div class="stat" id="totalVIP">0</div>
+          <p>Inscrições VIP</p>
+        </div>
+        <div class="dashboard-card">
+          <h3>📊</h3>
+          <div class="stat" id="totalLeads">0</div>
+          <p>Total de leads</p>
+        </div>
+      </div>
+
+      <div class="section-proprietario">
+        <h2>📋 Reservas Solicitadas</h2>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Data do Evento</th>
+                <th>Mesa</th>
+                <th>Nome</th>
+                <th>Pessoas</th>
+                <th>Tipo de Evento</th>
+                <th>WhatsApp</th>
+                <th>Data de Cadastro</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaReservas">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--muted);">Nenhuma reserva cadastrada</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="resumo-bottom">
+        <div class="section-proprietario">
+          <h2>📅 Próximos Eventos</h2>
+          <div id="proximosEventos">
+            <p style="text-align:center;color:var(--muted);padding:20px 0;">Nenhuma reserva futura</p>
+          </div>
+        </div>
+        <div class="section-proprietario">
+          <h2>🕐 Atividade Recente</h2>
+          <div id="atividadeRecente">
+            <p style="text-align:center;color:var(--muted);padding:20px 0;">Nenhuma atividade ainda</p>
+          </div>
+        </div>
+      </div>
+      </div><!-- FIM: ABA RESUMO -->
+
+      <!-- ABA: INDICADORES -->
+      <div id="indicadores" class="tab-content">
+      <div class="section-proprietario">
+        <h2>📈 Indicadores e Performance</h2>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon">📍</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Taxa de Engajamento</div>
+            <div class="kpi-value" id="kpiEngajamento">0%</div>
+            <div class="kpi-detail" id="kpiEngajamentoDetail">0 de 0 convertidos</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Capacidade Prevista</div>
+            <div class="kpi-value" id="kpiCapacidade">0</div>
+            <div class="kpi-detail">pessoas em reservas</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">🎯</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Evento Mais Popular</div>
+            <div class="kpi-value" id="kpiEventoPopular">—</div>
+            <div class="kpi-detail" id="kpiEventoDetail">0 solicitações</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">🎂</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Aniversariantes Este Mês</div>
+            <div class="kpi-value" id="kpiAniversariantes">0</div>
+            <div class="kpi-detail">oportunidades VIP</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-proprietario" style="margin-bottom:16px;">
+        <h3>📈 Evolução Diária de Cadastros</h3>
+        <div id="chartEvolucao" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="indicators-grid">
+        <div class="section-proprietario">
+          <h3>🎉 Distribuição de Eventos</h3>
+          <div class="chart-container" id="chartEventos"></div>
+        </div>
+
+        <div class="section-proprietario">
+          <h3>📅 Reservas por Período</h3>
+          <div class="chart-container" id="chartPeriodo"></div>
+        </div>
+      </div>
+
+      <div class="section-proprietario">
+        <h3>🎂 Aniversariantes do Mês</h3>
+        <div id="listaAniversariantes" style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+          <p style="text-align: center; color: var(--muted); padding: 20px;">Nenhum aniversariante no mês</p>
+        </div>
+      </div>
+
+      <div class="section-proprietario">
+        <h3>🏆 Insights de Negócio</h3>
+        <div id="insightsNegocio" style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+          <p style="text-align: center; color: var(--muted); padding: 20px;">Sem dados suficientes para gerar insights</p>
+        </div>
+      </div>
+      </div><!-- FIM: ABA INDICADORES -->
+      <div id="leads" class="tab-content">
+      <div class="section-proprietario">
+        <h2>👥 Inscrições na Lista VIP</h2>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Mesa</th>
+                <th>WhatsApp</th>
+                <th>E-mail</th>
+                <th>Data de Inscrição</th>
+                <th>Aniversário</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaVIP">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--muted);">Nenhuma inscrição VIP cadastrada</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div><!-- FIM: ABA LEADS -->
+
+      <!-- ABA: RESERVAS -->
+      <div id="reservas" class="tab-content">
+      <div class="section-proprietario">
+        <h2>📋 Todas as Reservas</h2>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Data do Evento</th>
+                <th>Mesa</th>
+                <th>Nome</th>
+                <th>Pessoas</th>
+                <th>Tipo de Evento</th>
+                <th>WhatsApp</th>
+                <th>Data de Cadastro</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaReservasCompleta">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--muted);">Nenhuma reserva cadastrada</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div><!-- FIM: ABA RESERVAS -->
+
+      <!-- ABA: CRIAR CAMPANHA -->
+      <div id="campanhas" class="tab-content">
+
+      <!-- CONFIGURAÇÃO N8N -->
+      <div class="section-proprietario" id="n8nConfigPanel" style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleN8nPanel()">
+          <h2 style="margin:0;">⚙️ Configuração do n8n</h2>
+          <span id="n8nStatusBadge" style="font-size:12px;padding:4px 12px;border-radius:999px;font-weight:700;"></span>
+        </div>
+        <div id="n8nPanelBody" style="display:none;margin-top:16px;">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;">
+            Cole abaixo a URL do webhook do seu n8n. Todas as campanhas serão enviadas para esse endpoint com o payload completo (mensagens personalizadas, imagem, links de confirmação).
+          </p>
+          <div style="display:grid;gap:10px;">
+            <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;">
+              Webhook URL
+              <input type="url" id="n8nWebhookInput" placeholder="https://seu-n8n.com/webhook/sr-altino"
+                style="margin-top:6px;width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--text);padding:10px;border-radius:8px;font-family:inherit;font-size:13px;">
+            </label>
+            <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;">
+              API Key (opcional)
+              <input type="password" id="n8nApiKeyInput" placeholder="Chave de autenticação do webhook"
+                style="margin-top:6px;width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--text);padding:10px;border-radius:8px;font-family:inherit;font-size:13px;">
+            </label>
+            <div style="display:flex;gap:8px;">
+              <button type="button" onclick="salvarConfN8n()"
+                style="background:var(--accent);color:#04120a;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;">
+                💾 Salvar
+              </button>
+              <button type="button" onclick="testarN8n()"
+                style="background:rgba(34,242,122,0.15);color:var(--accent);border:1px solid rgba(34,242,122,0.3);padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;">
+                🔌 Testar conexão
+              </button>
+            </div>
+            <div id="n8nTestResult" style="font-size:12px;display:none;padding:10px;border-radius:8px;"></div>
+          </div>
+          <details style="margin-top:16px;">
+            <summary style="font-size:11px;color:var(--muted);cursor:pointer;font-weight:600;">📋 Ver formato do payload enviado</summary>
+            <pre style="margin-top:10px;background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;font-size:10px;color:#b6b8b3;overflow-x:auto;line-height:1.5;">{
+  "type": "campanha_whatsapp",
+  "timestamp": "2026-04-20T16:00:00Z",
+  "source": "showzap-sr-altino",
+  "data": {
+    "campanha": {
+      "id": 1713628800000,
+      "titulo": "Show de Sexta",
+      "tipo": "show",
+      "publico": "vip",
+      "confirmacao": true,
+      "total_leads": 25
+    },
+    "mensagens": [
+      {
+        "whatsapp": "+5511999999999",
+        "nome": "João Silva",
+        "mensagem": "🎸 Oi, João Silva! Tem show...\n👇 https://seusite.com/confirmar.html?c=...",
+        "imagem": "data:image/jpeg;base64,..."
+      }
+    ]
+  }
+}</pre>
+          </details>
+        </div>
+      </div>
+
+      <div class="section-proprietario">
+        <h2>📢 Nova Campanha</h2>
+        <form class="campaign-form" id="formCampanha">
+          <label>Título Interno
+            <input type="text" name="titulo" placeholder="Ex: Show de Sexta - Rock" required>
+          </label>
+          <label>Tipo de Campanha
+            <select name="tipo" required>
+              <option value="show">🎸 Show</option>
+              <option value="desconto">💰 Desconto</option>
+              <option value="promocao">🎉 Promoção</option>
+              <option value="evento">🎪 Evento</option>
+              <option value="vip">👑 Benefício VIP</option>
+              <option value="alerta">🔔 Alerta</option>
+            </select>
+          </label>
+
+          <!-- IMAGEM -->
+          <div class="upload-zone" id="uploadZone" style="grid-column:1/-1;"
+               ondragover="event.preventDefault();this.classList.add('dragover')"
+               ondragleave="this.classList.remove('dragover')"
+               ondrop="handleDrop(event)">
+            <input type="file" id="imagemInput" accept="image/*" onchange="handleImagem(this)">
+            <div id="uploadContent">
+              <div class="upload-icon">🖼️</div>
+              <div class="upload-text">Clique ou arraste um flyer / foto do evento (máx. 5 MB)</div>
+            </div>
+          </div>
+
+          <!-- PÚBLICO-ALVO -->
+          <div class="audience-section" style="grid-column:1/-1;">
+            <div class="audience-label">Público-alvo</div>
+            <div class="audience-options">
+              <label class="audience-opt"><input type="radio" name="publico" value="todos" checked onchange="atualizarPublico()"> Todos</label>
+              <label class="audience-opt"><input type="radio" name="publico" value="vip" onchange="atualizarPublico()"> Só VIP</label>
+              <label class="audience-opt"><input type="radio" name="publico" value="reservas" onchange="atualizarPublico()"> Só Reservas</label>
+              <label class="audience-opt"><input type="radio" name="publico" value="aniversariantes" onchange="atualizarPublico()"> 🎂 Aniversariantes</label>
+            </div>
+            <div id="audienceCount" class="audience-count">—</div>
+          </div>
+
+          <label style="grid-column:1/-1;">Detalhes para IA
+            <textarea name="detalhes" placeholder="Ex: Show da banda X, sexta à noite, convite exclusivo para VIP..."></textarea>
+          </label>
+          <label style="grid-column:1/-1;">
+            <button type="button" onclick="gerarComIA()">✨ Gerar com IA</button>
+          </label>
+
+                <!-- CONFIRMAÇÃO DE PRESENÇA -->
+          <label class="audience-opt" style="grid-column:1/-1;border-radius:10px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);cursor:pointer;">
+            <input type="checkbox" name="confirmacao" id="checkConfirmacao" onchange="toggleConfirmacao()"
+              style="width:16px;height:16px;min-height:unset;accent-color:var(--accent);cursor:pointer;flex-shrink:0;border:none;background:none;padding:0;">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">🎯 Habilitar confirmação de presença</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px;">Gera um link único por contato para confirmar presença. Use <code style="color:var(--accent);">{link}</code> na mensagem.</div>
+            </div>
+          </label>
+
+          <div style="grid-column:1/-1;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;">Conteúdo da Mensagem</span>
+              <div style="display:flex;gap:6px;">
+                <button type="button" class="btn-small" onclick="inserirNome()" style="padding:4px 10px;font-size:10px;background:rgba(34,242,122,0.15);border:none;color:var(--accent);border-radius:6px;cursor:pointer;font-weight:700;">+ {nome}</button>
+                <button type="button" id="btnInserirLink" onclick="inserirLink()" style="display:none;padding:4px 10px;font-size:10px;background:rgba(167,139,250,0.15);border:none;color:#a78bfa;border-radius:6px;cursor:pointer;font-weight:700;">+ {link}</button>
+              </div>
+            </div>
+            <textarea name="conteudo" id="conteudoCampanha" placeholder="A mensagem será preenchida aqui..." required rows="6"
+              style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--text);padding:10px;border-radius:8px;font-family:inherit;font-size:13px;resize:vertical;min-height:100px;"
+              oninput="atualizarContador()"></textarea>
+            <div class="char-counter" id="charCounter">0 / 1024</div>
+          </div>
+
+          <button type="submit">💾 Salvar Rascunho</button>
+          <button type="button" class="btn-secondary" onclick="enviarCampanha()">📤 Enviar para Contatos</button>
+          <button type="button" class="btn-secondary" onclick="abrirPreview()" style="grid-column:1/-1;">👁️ Pré-visualizar</button>
+        </form>
+      </div>
+
+      </div><!-- FIM: ABA CRIAR CAMPANHA-->
+
+      <!-- ABA: GERENCIAR CAMPANHAS -->
+      <div id="gerenciarCampanhas" class="tab-content">
+      <div class="section-proprietario">
+        <h2>🗂️ Gerenciar Campanhas</h2>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;">
+          Acompanhe campanhas salvas, enviadas e em fila, veja confirmações de presença e remova registros antigos quando necessário.
+        </p>
+        <div id="historicoCampanhas"></div>
+      </div>
+      </div><!-- FIM: ABA GERENCIAR CAMPANHAS-->
+    </div>
+  </main>
+
+  <!-- MODAL DE PRÉ-VISUALIZAÇÃO -->
+  <div class="modal-overlay" id="previewModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="fecharPreview()">✕</button>
+      
+      <h2 style="text-align: center; margin-top: 0; color: var(--accent);">Pré-visualização da Mensagem</h2>
+      
+      <div class="preview-phone">
+        <div class="phone-screen">
+          <div class="phone-header">📲</div>
+          <div class="phone-messages">
+            <div class="message-received" id="previewContent"></div>
+            <div class="message-time" id="previewTime"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-title">Como seus clientes verão no WhatsApp</div>
+      
+      <div class="preview-info">
+        <strong>💡 Dica:</strong> Esta é uma prévia de como a mensagem será entregue. O conteúdo pode sofrer pequenas alterações dependendo do cliente WhatsApp/SMS utilizado.
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px;">
+        <button class="btn-small" style="grid-column: 1 / -1; padding: 10px; font-size: 12px;" onclick="fecharPreview()">Fechar Pré-visualização</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer container">
+    © 2026 Sr. Altino Bar. Todos os direitos reservados.
+  </footer>
+
+  <script src="auth.js"></script>
+  <script>
+    // Protege a página
+    AUTH.protectPage();
+
+    // Exibe informações do usuário
+    document.getElementById('userName').textContent = 'Olá, ' + AUTH.getUser() + '!';
+    document.getElementById('loginTime').textContent = new Date().toLocaleDateString('pt-BR');
+
+    // ABAS
+    function mostrarAba(abaId) {
+      // Esconde todas as abas
+      document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.remove('active');
+      });
+      // Remove active de todos os botões
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      // Mostra a aba selecionada
+      document.getElementById(abaId).classList.add('active');
+      // Ativa o botão
+      event.target.classList.add('active');
+      // Carrega os dados correspondentes
+      if (abaId === 'indicadores') carregarIndicadores();
+      else if (abaId === 'campanhas') { atualizarPublico(); atualizarStatusN8n(); }
+      else if (abaId === 'gerenciarCampanhas') carregarCampanhas();
+      else if (abaId === 'leads' || abaId === 'reservas') carregarLeads();
+    }
+
+    // LEADS
+    function carregarLeads() {
+      const leads = JSON.parse(localStorage.getItem('leads') || '[]');
+      
+      // Separa reservas e VIP
+      const reservas = leads.filter(l => l.tipo === 'Reserva');
+      const vips = leads.filter(l => l.tipo === 'VIP');
+
+      // Atualiza contadores (resumo)
+      document.getElementById('totalReservas').textContent = reservas.length;
+      document.getElementById('totalVIP').textContent = vips.length;
+      document.getElementById('totalLeads').textContent = leads.length;
+
+      // Popula tabela de reservas (resumo)
+      const tabelaReservas = document.getElementById('tabelaReservas');
+      if (reservas.length > 0) {
+        tabelaReservas.innerHTML = reservas.map(r => `
+          <tr>
+            <td>${r.data_evento}</td>
+            <td>${r.mesa ? 'Mesa ' + r.mesa : '-'}</td>
+            <td>${r.nome}</td>
+            <td>${r.pessoas}</td>
+            <td>${r.tipo_evento}</td>
+            <td>${r.whatsapp}</td>
+            <td>${r.data_cadastro}</td>
+          </tr>
+        `).join('');
+      } else {
+        tabelaReservas.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--muted);">Nenhuma reserva cadastrada</td></tr>';
+      }
+
+      // Popula tabela de reservas completa
+      const tabelaReservasCompleta = document.getElementById('tabelaReservasCompleta');
+      if (reservas.length > 0) {
+        tabelaReservasCompleta.innerHTML = reservas.map(r => `
+          <tr>
+            <td>${r.data_evento}</td>
+            <td>${r.mesa ? 'Mesa ' + r.mesa : '-'}</td>
+            <td>${r.nome}</td>
+            <td>${r.pessoas}</td>
+            <td>${r.tipo_evento}</td>
+            <td>${r.whatsapp}</td>
+            <td>${r.data_cadastro}</td>
+          </tr>
+        `).join('');
+      } else {
+        tabelaReservasCompleta.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--muted);">Nenhuma reserva cadastrada</td></tr>';
+      }
+
+      // PRÓXIMOS EVENTOS
+      const proximosEventos = document.getElementById('proximosEventos');
+      if (proximosEventos) {
+        const reservasOrdenadas = [...reservas]
+          .filter(r => r.data_evento)
+          .sort((a, b) => {
+            const [da, ma, aa] = a.data_evento.split('/');
+            const [db, mb, ab] = b.data_evento.split('/');
+            return new Date(aa, ma-1, da) - new Date(ab, mb-1, db);
+          })
+          .slice(0, 5);
+        if (reservasOrdenadas.length > 0) {
+          proximosEventos.innerHTML = reservasOrdenadas.map(r => {
+            const [dia, mes] = r.data_evento.split('/');
+            const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+            return `
+              <div class="event-item">
+                <div class="event-date-badge">
+                  <div class="day">${dia}</div>
+                  <div class="month">${meses[parseInt(mes)-1]}</div>
+                </div>
+                <div class="event-info">
+                  <div class="event-name">${r.nome}</div>
+                  <div class="event-meta">${r.tipo_evento} · ${r.pessoas} pessoas</div>
+                </div>
+              </div>`;
+          }).join('');
+        } else {
+          proximosEventos.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px 0;">Nenhuma reserva futura</p>';
+        }
+      }
+
+      // ATIVIDADE RECENTE
+      const atividadeRecente = document.getElementById('atividadeRecente');
+      if (atividadeRecente) {
+        const recentes = [...leads]
+          .sort((a, b) => (b.id || 0) - (a.id || 0))
+          .slice(0, 6);
+        if (recentes.length > 0) {
+          atividadeRecente.innerHTML = recentes.map(l => `
+            <div class="activity-item">
+              <div class="activity-dot ${l.tipo === 'VIP' ? 'vip' : 'reserva'}"></div>
+              <div class="activity-info">
+                <div class="activity-name">${l.nome}</div>
+                <div class="activity-meta">${l.tipo === 'VIP' ? 'Entrou na Lista VIP' : 'Solicitou reserva · ' + (l.tipo_evento || '')}${l.mesa ? ' · Mesa ' + l.mesa : ''} · ${l.data || l.data_cadastro || ''}</div>
+              </div>
+            </div>`).join('');
+        } else {
+          atividadeRecente.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px 0;">Nenhuma atividade ainda</p>';
+        }
+      }
+
+      // Popula tabela de VIP
+      const tabelaVIP = document.getElementById('tabelaVIP');
+      if (vips.length > 0) {
+        tabelaVIP.innerHTML = vips.map(v => `
+          <tr>
+            <td>${v.nome}</td>
+            <td>${v.mesa ? 'Mesa ' + v.mesa : '-'}</td>
+            <td>${v.whatsapp}</td>
+            <td>${v.email || '—'}</td>
+            <td>${v.data}</td>
+            <td>${v.aniversario ? new Date(v.aniversario).toLocaleDateString('pt-BR', { month: '2-digit', day: '2-digit' }) : '—'}</td>
+          </tr>
+        `).join('');
+      } else {
+        tabelaVIP.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--muted);">Nenhuma inscrição VIP cadastrada</td></tr>';
+      }
+    }
+
+    // CAMPANHAS
+    function carregarCampanhas() {
+      const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+      const historico = document.getElementById('historicoCampanhas');
+      
+      if (campanhas.length === 0) {
+        historico.innerHTML = '<p style="text-align: center; color: var(--muted); padding: 20px;">Nenhuma campanha criada ainda</p>';
+        return;
+      }
+
+      const publicoLabel = { todos: 'Todos', vip: 'Só VIP', reservas: 'Só Reservas', aniversariantes: 'Aniversariantes' };
+      const todasConfirmacoes = JSON.parse(localStorage.getItem('confirmacoes') || '[]');
+
+      const campanhasOrdenadas = [...campanhas].reverse();
+      historico.innerHTML = campanhasOrdenadas.map((c, idx) => {
+        const confirmados = todasConfirmacoes.filter(x => String(x.cId) === String(c.id));
+        const pct = c.leadsContados > 0 ? Math.round((confirmados.length / c.leadsContados) * 100) : 0;
+        return `
+        <div class="campaign-item">
+          <div class="campaign-header">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              ${c.imagem ? `<img src="${c.imagem}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;flex-shrink:0;">` : ''}
+              <div>
+                <div class="campaign-title">${c.titulo}</div>
+                <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">
+                  <span class="campaign-type">${c.tipo.toUpperCase()}</span>
+                  ${c.publico ? `<span class="campaign-type" style="background:rgba(167,139,250,0.15);color:#a78bfa;">👥 ${publicoLabel[c.publico] || c.publico}</span>` : ''}
+                  ${c.confirmacao ? `<span class="campaign-type" style="background:rgba(255,196,0,0.15);color:#ffc400;">🎯 Confirmação</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <button class="btn-delete btn-small" onclick="deletarCampanha(${campanhas.length - 1 - idx})">🗑️</button>
+          </div>
+          <div class="campaign-meta">
+            <span>📅 ${c.data}</span>
+            <span>👤 ${c.leadsContados || 0} enviados</span>
+            ${c.confirmacao ? `<span style="color:var(--accent);">✅ ${confirmados.length} confirmados ${confirmados.length > 0 ? '(' + pct + '%)' : ''}</span>` : ''}
+          </div>
+          <div class="campaign-content">${c.conteudo}</div>
+          ${c.confirmacao && confirmados.length > 0 ? `
+          <div style="margin-top:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Quem confirmou</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${confirmados.map(x => `<span style="background:rgba(34,242,122,0.1);border:1px solid rgba(34,242,122,0.25);color:var(--accent);padding:3px 10px;border-radius:999px;font-size:11px;">✅ ${x.nome} · ${x.hora || x.data}</span>`).join('')}
+            </div>
+          </div>` : ''}
+          <div class="campaign-actions" style="margin-top:10px;">
+            <span class="status-${c.status && c.status.includes('Enviada') ? 'enviada' : 'rascunho'}">${c.status}</span>
+          </div>
+        </div>`;
+      }).join('');
+
+    }
+
+    // GRÁFICO DE LINHA SVG
+    function renderLinhaChart(dados, containerId) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      if (dados.length === 0) {
+        el.innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px 0;">Sem dados suficientes</p>';
+        return;
+      }
+
+      const W = 600, H = 200;
+      const pad = { top: 16, right: 20, bottom: 36, left: 32 };
+      const cW = W - pad.left - pad.right;
+      const cH = H - pad.top - pad.bottom;
+      const maxVal = Math.max(...dados.map(d => Math.max(d.vip, d.reserva)), 1);
+      const xStep = dados.length > 1 ? cW / (dados.length - 1) : cW;
+
+      const gx = i => pad.left + i * xStep;
+      const gy = v => pad.top + cH - (v / maxVal) * cH;
+
+      const grid = [0, 0.25, 0.5, 0.75, 1].map(f => {
+        const y = pad.top + cH * (1 - f);
+        const v = Math.round(f * maxVal);
+        return `<line x1="${pad.left}" y1="${y}" x2="${W - pad.right}" y2="${y}" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+                <text x="${pad.left - 5}" y="${y + 4}" fill="#b6b8b3" font-size="9" text-anchor="end">${v}</text>`;
+      }).join('');
+
+      const xLabels = dados.map((d, i) =>
+        `<text x="${gx(i)}" y="${H - 6}" fill="#b6b8b3" font-size="9" text-anchor="middle">${d.label}</text>`
+      ).join('');
+
+      const polyVIP = dados.map((d, i) => `${gx(i)},${gy(d.vip)}`).join(' ');
+      const polyRes = dados.map((d, i) => `${gx(i)},${gy(d.reserva)}`).join(' ');
+
+      const areaVIP = `${gx(0)},${gy(0)} ${polyVIP} ${gx(dados.length-1)},${gy(0)}`;
+      const areaRes = `${gx(0)},${gy(0)} ${polyRes} ${gx(dados.length-1)},${gy(0)}`;
+
+      const dotsVIP = dados.map((d, i) => d.vip > 0
+        ? `<circle cx="${gx(i)}" cy="${gy(d.vip)}" r="4" fill="#22f27a" stroke="#070909" stroke-width="2"/>`
+        : '').join('');
+      const dotsRes = dados.map((d, i) => d.reserva > 0
+        ? `<circle cx="${gx(i)}" cy="${gy(d.reserva)}" r="4" fill="#a78bfa" stroke="#070909" stroke-width="2"/>`
+        : '').join('');
+
+      el.innerHTML = `
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;overflow:visible;">
+          <defs>
+            <linearGradient id="gVip" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#22f27a" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#22f27a" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="gRes" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.14"/>
+              <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          ${grid}
+          ${xLabels}
+          <polygon points="${areaVIP}" fill="url(#gVip)"/>
+          <polygon points="${areaRes}" fill="url(#gRes)"/>
+          <polyline points="${polyVIP}" fill="none" stroke="#22f27a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <polyline points="${polyRes}" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+          ${dotsVIP}
+          ${dotsRes}
+        </svg>
+        <div style="display:flex;gap:20px;justify-content:center;margin-top:8px;">
+          <span style="font-size:11px;color:#22f27a;">● VIP</span>
+          <span style="font-size:11px;color:#a78bfa;">● Reservas</span>
+        </div>`;
+    }
+
+    // INDICADORES
+    function carregarIndicadores() {
+      const leads = JSON.parse(localStorage.getItem('leads') || '[]');
+      const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+
+      const vips = leads.filter(l => l.tipo === 'VIP');
+      const reservas = leads.filter(l => l.tipo === 'Reserva');
+
+      // 1. TAXA DE ENGAJAMENTO
+      const engajamento = leads.length > 0 ? Math.round((reservas.length / leads.length) * 100) : 0;
+      document.getElementById('kpiEngajamento').textContent = engajamento + '%';
+      document.getElementById('kpiEngajamentoDetail').textContent = `${reservas.length} de ${leads.length} convertidos para reserva`;
+
+      // 2. CAPACIDADE PREVISTA
+      const capacidade = reservas.reduce((sum, r) => sum + parseInt(r.pessoas || 0), 0);
+      document.getElementById('kpiCapacidade').textContent = capacidade;
+
+      // 3. EVENTO MAIS POPULAR
+      const eventosContagem = {};
+      reservas.forEach(r => {
+        eventosContagem[r.tipo_evento] = (eventosContagem[r.tipo_evento] || 0) + 1;
+      });
+      const eventoPopular = Object.entries(eventosContagem).sort((a, b) => b[1] - a[1])[0];
+      if (eventoPopular) {
+        document.getElementById('kpiEventoPopular').textContent = eventoPopular[0];
+        document.getElementById('kpiEventoDetail').textContent = `${eventoPopular[1]} solicitações`;
+      } else {
+        document.getElementById('kpiEventoPopular').textContent = '—';
+        document.getElementById('kpiEventoDetail').textContent = '0 solicitações';
+      }
+
+      // 4. ANIVERSARIANTES DO MÊS
+      const mesAtual = new Date().getMonth();
+      const aniversariantes = vips.filter(v => {
+        if (!v.aniversario) return false;
+        const data = new Date(v.aniversario);
+        return data.getMonth() === mesAtual;
+      });
+      document.getElementById('kpiAniversariantes').textContent = aniversariantes.length;
+
+      // 5. GRÁFICO DE EVOLUÇÃO DIÁRIA (últimos 14 dias)
+      const hoje = new Date();
+      const evolucaoDados = [];
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(hoje);
+        d.setDate(hoje.getDate() - i);
+        const label = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const vipDia = vips.filter(v => (v.data || '').startsWith(label.replace('/', '/'))).length
+          || vips.filter(v => v.data === label).length;
+        const resDia = reservas.filter(r => (r.data_cadastro || '').startsWith(label.replace('/', '/'))).length
+          || reservas.filter(r => r.data_cadastro === label).length;
+        evolucaoDados.push({ label: label.slice(0, 5), vip: vipDia, reserva: resDia });
+      }
+      renderLinhaChart(evolucaoDados, 'chartEvolucao');
+
+      // 7. GRÁFICO DE DISTRIBUIÇÃO DE EVENTOS
+      const chartEventos = document.getElementById('chartEventos');
+      if (Object.keys(eventosContagem).length > 0) {
+        const maxEventos = Math.max(...Object.values(eventosContagem));
+        chartEventos.innerHTML = Object.entries(eventosContagem).map(([evento, count]) => {
+          const altura = (count / maxEventos) * 100;
+          return `
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <div class="chart-bar" style="height: ${altura}%;">
+                <div class="chart-tooltip">${count}</div>
+              </div>
+              <div class="chart-label">${evento}</div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        chartEventos.innerHTML = '<p style="text-align: center; color: var(--muted); grid-column: 1 / -1; padding: 40px;">Sem reservas para análise</p>';
+      }
+
+      // 8. GRÁFICO DE RESERVAS POR PERÍODO
+      const periodos = {};
+      reservas.forEach(r => {
+        const periodo = r.data_evento ? r.data_evento.split('/')[0] : 'Sem data';
+        periodos[`Dia ${periodo}`] = (periodos[`Dia ${periodo}`] || 0) + 1;
+      });
+
+      const chartPeriodo = document.getElementById('chartPeriodo');
+      if (Object.keys(periodos).length > 0) {
+        const maxPeriodo = Math.max(...Object.values(periodos));
+        chartPeriodo.innerHTML = Object.entries(periodos).map(([periodo, count]) => {
+          const altura = (count / maxPeriodo) * 100;
+          return `
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <div class="chart-bar" style="height: ${altura}%;">
+                <div class="chart-tooltip">${count}</div>
+              </div>
+              <div class="chart-label">${periodo.replace('Dia ', '')}</div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        chartPeriodo.innerHTML = '<p style="text-align: center; color: var(--muted); grid-column: 1 / -1; padding: 40px;">Sem dados de reservas</p>';
+      }
+
+      // 9. LISTA DE ANIVERSARIANTES
+      const listaAniversariantes = document.getElementById('listaAniversariantes');
+      if (aniversariantes.length > 0) {
+        listaAniversariantes.innerHTML = aniversariantes.map(v => {
+          const data = new Date(v.aniversario);
+          const dia = data.getDate();
+          const mes = data.toLocaleDateString('pt-BR', { month: 'long' });
+          return `
+            <div class="aniversariante-item">
+              <div class="aniversariante-info">
+                <div class="aniversariante-nome">🎂 ${v.nome}</div>
+                <div class="aniversariante-data">${dia} de ${mes}</div>
+                <div class="aniversariante-whatsapp">${v.whatsapp}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        listaAniversariantes.innerHTML = '<p style="text-align: center; color: var(--muted); padding: 20px;">Nenhum aniversariante neste mês</p>';
+      }
+
+      // 10. INSIGHTS DE NEGÓCIO
+      const insightsNegocio = document.getElementById('insightsNegocio');
+      const insights = [];
+
+      if (leads.length > 0) {
+        insights.push({
+          titulo: '💡 Taxa de Conversão',
+          texto: `${engajamento}% dos leads se tornaram reservas. ${engajamento > 30 ? '✅ Excelente!' : engajamento > 10 ? '⚠️ Há potencial de melhora' : '🔴 Foco em converter mais leads'}`
+        });
+      }
+
+      if (aniversariantes.length > 0) {
+        insights.push({
+          titulo: '🎂 Oportunidade de Engajamento',
+          texto: `${aniversariantes.length} aniversariante(s) neste mês. Envie uma promoção especial!`
+        });
+      }
+
+      if (reservas.length > 0) {
+        const mediasPessoas = Math.round(capacidade / reservas.length);
+        insights.push({
+          titulo: '👥 Tamanho Médio de Grupos',
+          texto: `${mediasPessoas} pessoas por reserva. Considere promoções para grupos maiores.`
+        });
+      }
+
+      if (Object.keys(eventosContagem).length > 0) {
+        insights.push({
+          titulo: '🎯 Tipo de Evento Mais Popular',
+          texto: `${eventoPopular[0]} é o mais solicitado (${eventoPopular[1]} reservas). Aproveite para criar promoções especializadas.`
+        });
+      }
+
+      if (campanhas.filter(c => c.status === 'Enviada').length > 0) {
+        const campanhasEnviadas = campanhas.filter(c => c.status === 'Enviada').length;
+        insights.push({
+          titulo: '📢 Performance de Campanhas',
+          texto: `${campanhasEnviadas} campanha(s) enviada(s). Continue acompanhando a taxa de conversão.`
+        });
+      }
+
+      if (insights.length > 0) {
+        insightsNegocio.innerHTML = insights.map(i => `
+          <div class="insight-item">
+            <div class="insight-title">${i.titulo}</div>
+            <div class="insight-text">${i.texto}</div>
+          </div>
+        `).join('');
+      } else {
+        insightsNegocio.innerHTML = '<p style="text-align: center; color: var(--muted); padding: 20px;">Envie campanhas e receba leads para gerar insights</p>';
+      }
+    }
+
+    // ── IMAGEM ──────────────────────────────────────────────────────
+    let imagemBase64 = null;
+
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('uploadZone').classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) processarImagem(file);
+    }
+
+    function handleImagem(input) {
+      const file = input.files[0];
+      if (file) processarImagem(file);
+    }
+
+    function processarImagem(file) {
+      if (file.size > 5 * 1024 * 1024) { alert('Imagem muito grande. Máximo 5 MB.'); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        imagemBase64 = e.target.result;
+        document.getElementById('uploadContent').innerHTML = `
+          <div class="img-preview-wrap">
+            <img src="${imagemBase64}" class="img-preview" alt="Preview">
+            <button type="button" class="img-remove" onclick="removerImagem()">✕</button>
+          </div>
+          <div class="upload-text" style="margin-top:6px;">${file.name}</div>`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removerImagem() {
+      imagemBase64 = null;
+      document.getElementById('imagemInput').value = '';
+      document.getElementById('uploadContent').innerHTML = `
+        <div class="upload-icon">🖼️</div>
+        <div class="upload-text">Clique ou arraste um flyer / foto do evento (máx. 5 MB)</div>`;
+    }
+
+    // ── PÚBLICO-ALVO ─────────────────────────────────────────────────
+    function filtrarPorPublico(leads, publico) {
+      const mesAtual = new Date().getMonth();
+      if (publico === 'vip') return leads.filter(l => l.tipo === 'VIP');
+      if (publico === 'reservas') return leads.filter(l => l.tipo === 'Reserva');
+      if (publico === 'aniversariantes') return leads.filter(l => {
+        if (!l.aniversario) return false;
+        return new Date(l.aniversario).getMonth() === mesAtual;
+      });
+      return leads;
+    }
+
+    function atualizarPublico() {
+      const publico = document.querySelector('[name="publico"]:checked')?.value || 'todos';
+      const leads = JSON.parse(localStorage.getItem('leads') || '[]');
+      const filtrado = filtrarPorPublico(leads, publico);
+      const el = document.getElementById('audienceCount');
+      if (el) el.innerHTML = `<strong>${filtrado.length}</strong> contato${filtrado.length !== 1 ? 's' : ''} receberão esta campanha`;
+    }
+
+    // ── PERSONALIZAÇÃO ───────────────────────────────────────────────
+    function inserirNome() {
+      const ta = document.getElementById('conteudoCampanha');
+      const s = ta.selectionStart, end = ta.selectionEnd;
+      ta.value = ta.value.slice(0, s) + '{nome}' + ta.value.slice(end);
+      ta.selectionStart = ta.selectionEnd = s + 6;
+      ta.focus();
+      atualizarContador();
+    }
+
+    function toggleConfirmacao() {
+      const ativo = document.getElementById('checkConfirmacao').checked;
+      document.getElementById('btnInserirLink').style.display = ativo ? 'inline-block' : 'none';
+    }
+
+    function inserirLink() {
+      const ta = document.getElementById('conteudoCampanha');
+      const s = ta.selectionStart, end = ta.selectionEnd;
+      ta.value = ta.value.slice(0, s) + '{link}' + ta.value.slice(end);
+      ta.selectionStart = ta.selectionEnd = s + 6;
+      ta.focus();
+      atualizarContador();
+    }
+
+    function gerarLinkConfirmacao(campaignId, tel, nome) {
+      const base = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+      const n = encodeURIComponent(nome || '');
+      return `${base}confirmar.html?c=${campaignId}&t=${encodeURIComponent(tel)}&n=${n}`;
+    }
+
+    function atualizarContador() {
+      const el = document.getElementById('charCounter');
+      const len = document.getElementById('conteudoCampanha').value.length;
+      if (el) {
+        el.textContent = `${len} / 1024`;
+        el.className = 'char-counter' + (len > 1024 ? ' over' : len > 900 ? ' warn' : '');
+      }
+    }
+
+    // ── CONFIGURAÇÃO N8N ─────────────────────────────────────────────
+    function atualizarStatusN8n() {
+      const badge = document.getElementById('n8nStatusBadge');
+      if (!badge) return;
+      if (n8nIntegration.estaConfigurado()) {
+        badge.textContent = '✅ Configurado';
+        badge.style.cssText = 'font-size:12px;padding:4px 12px;border-radius:999px;font-weight:700;background:rgba(34,242,122,0.15);color:var(--accent);';
+      } else {
+        badge.textContent = '⚠️ Não configurado';
+        badge.style.cssText = 'font-size:12px;padding:4px 12px;border-radius:999px;font-weight:700;background:rgba(255,200,0,0.15);color:#ffc800;';
+      }
+    }
+
+    function toggleN8nPanel() {
+      const body = document.getElementById('n8nPanelBody');
+      const isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : 'block';
+      if (!isOpen) {
+        document.getElementById('n8nWebhookInput').value = localStorage.getItem('n8n_webhook_url') || '';
+        document.getElementById('n8nApiKeyInput').value = localStorage.getItem('n8n_api_key') || '';
+      }
+    }
+
+    function salvarConfN8n() {
+      const url = document.getElementById('n8nWebhookInput').value.trim();
+      const key = document.getElementById('n8nApiKeyInput').value.trim();
+      n8nIntegration.configurarWebhook(url);
+      if (key) n8nIntegration.configurarAPIKey(key);
+      atualizarStatusN8n();
+      mostrarResultadoTeste('💾 Configuração salva!', true);
+    }
+
+    async function testarN8n() {
+      if (!n8nIntegration.estaConfigurado()) {
+        mostrarResultadoTeste('⚠️ Salve a URL do webhook primeiro.', false);
+        return;
+      }
+      mostrarResultadoTeste('🔄 Testando conexão...', null);
+      n8nIntegration.enviarWebhook('ping', { source: 'showzap-test', timestamp: new Date().toISOString() },
+        () => mostrarResultadoTeste('✅ Conexão bem-sucedida! n8n está recebendo os dados.', true),
+        (e) => mostrarResultadoTeste(`❌ Falha: ${e.message}`, false)
+      );
+    }
+
+    function mostrarResultadoTeste(msg, ok) {
+      const el = document.getElementById('n8nTestResult');
+      el.style.display = 'block';
+      el.textContent = msg;
+      el.style.background = ok === true ? 'rgba(34,242,122,0.1)' : ok === false ? 'rgba(255,100,100,0.1)' : 'rgba(255,255,255,0.05)';
+      el.style.color = ok === true ? 'var(--accent)' : ok === false ? '#ff6464' : 'var(--muted)';
+      el.style.border = `1px solid ${ok === true ? 'rgba(34,242,122,0.3)' : ok === false ? 'rgba(255,100,100,0.3)' : 'rgba(255,255,255,0.08)'}`;
+    }
+
+    // ── GERAR COM IA ─────────────────────────────────────────────────
+    function gerarComIA() {
+      const titulo = document.querySelector('[name="titulo"]').value;
+      const tipo = document.querySelector('[name="tipo"]').value;
+      const detalhes = document.querySelector('[name="detalhes"]').value;
+
+      if (!titulo) { alert('Preencha o Título Interno'); return; }
+
+      const templates = {
+        show: `🎸 Oi, {nome}! Tem show no Sr. Altino!
+
+${titulo}
+${detalhes ? '\n' + detalhes : ''}
+
+Não perca! Reserve sua mesa ou chegue cedo.
+
+Sr. Altino Bar 🍻`,
+        desconto: `💰 {nome}, promoção especial pra você!
+
+${titulo}
+${detalhes ? '\n' + detalhes : ''}
+
+Aproveite por tempo limitado!
+Vem pro Sr. Altino! 🍻`,
+        promocao: `🎉 Oi, {nome}!
+
+${titulo}
+${detalhes ? '\n' + detalhes : ''}
+
+Válido para você e seus amigos.
+Sr. Altino Bar 🍻`,
+        evento: `🎪 {nome}, você está convidado!
+
+${titulo}
+${detalhes ? '\n' + detalhes : ''}
+
+Reserve sua vaga agora!
+Sr. Altino Bar 🍻`,
+        vip: `👑 {nome}, você é VIP para a gente!
+
+${titulo}
+${detalhes ? '\n' + detalhes : ''}
+
+Aproveite seus privilégios exclusivos.
+Sr. Altino Bar 🍻`,
+        alerta: `🔔 Atenção, {nome}!
+
+${titulo}
+${detalhes ? '\n' + detalhes : ''}
+
+Sr. Altino Bar 🍻`
+      };
+
+      const comConfirmacao = document.getElementById('checkConfirmacao')?.checked;
+      const rodape = comConfirmacao ? '\n\n👇 Confirme sua presença:\n{link}' : '';
+      document.getElementById('conteudoCampanha').value = ((templates[tipo] || templates.show).trim() + rodape);
+      atualizarContador();
+    }
+
+    function enviarCampanha() {
+      const form = document.getElementById('formCampanha');
+      if (!form.checkValidity()) {
+        alert('Preencha todos os campos obrigatórios');
+        return;
+      }
+
+      const todosLeads = JSON.parse(localStorage.getItem('leads') || '[]');
+      const formData = new FormData(form);
+      const publico = formData.get('publico') || 'todos';
+      const leads = filtrarPorPublico(todosLeads, publico);
+
+      if (leads.length === 0) {
+        alert('Nenhum contato encontrado para o público selecionado.');
+        return;
+      }
+
+      const titulo = formData.get('titulo');
+      const tipo = formData.get('tipo');
+      const conteudo = formData.get('conteudo');
+      const detalhes = formData.get('detalhes');
+      const comConfirmacao = !!formData.get('confirmacao');
+      const campaignId = Date.now();
+
+      const listaLeads = leads.map(l => {
+        const link = comConfirmacao ? gerarLinkConfirmacao(campaignId, l.whatsapp, l.nome) : '';
+        const msg = conteudo
+          .replace(/\{nome\}/g, l.nome || 'cliente')
+          .replace(/\{link\}/g, link);
+        return { nome: l.nome, whatsapp: l.whatsapp, email: l.email, tipo_lead: l.tipo, mensagem_personalizada: msg };
+      });
+
+      const buildCampanha = (status) => ({
+        id: campaignId, titulo, tipo, conteudo, detalhes,
+        publico, imagem: imagemBase64,
+        confirmacao: comConfirmacao,
+        status,
+        data: new Date().toLocaleDateString('pt-BR'),
+        leadsContados: leads.length
+      });
+
+      const salvarEResetar = (campanha, msg) => {
+        const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+        campanhas.push(campanha);
+        localStorage.setItem('campanhas', JSON.stringify(campanhas));
+        alert(msg);
+        form.reset();
+        removerImagem();
+        atualizarPublico();
+        atualizarContador();
+        carregarCampanhas();
+      };
+
+      if (!n8nIntegration.estaConfigurado()) {
+        salvarEResetar(
+          buildCampanha('Rascunho'),
+          `💡 n8n não configurado.\nCampanha salva como rascunho para ${leads.length} contatos.\n\nVá em ⚙️ Configuração do n8n para configurar o webhook.`
+        );
+        return;
+      }
+
+      const mensagens = listaLeads.map(l => ({
+        whatsapp: l.whatsapp,
+        nome: l.nome,
+        mensagem: l.mensagem_personalizada,
+        imagem: imagemBase64 || null
+      }));
+
+      n8nIntegration.enviarCampanha(
+        { id: campaignId, titulo, tipo, publico, confirmacao: comConfirmacao },
+        mensagens,
+        () => salvarEResetar(buildCampanha('Enviada'), `✅ Campanha enviada para ${leads.length} contatos via n8n!`),
+        () => salvarEResetar(buildCampanha('Fila (n8n offline)'), `⚠️ n8n offline. Campanha salva em fila — será enviada quando reconectar.`)
+      );
+    }
+
+    function deletarCampanha(idx) {
+      if (confirm('Tem certeza que deseja deletar esta campanha?')) {
+        const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+        campanhas.splice(idx, 1);
+        localStorage.setItem('campanhas', JSON.stringify(campanhas));
+        carregarCampanhas();
+      }
+    }
+
+    function verDetalhes(idx) {
+      const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+      const c = campanhas[idx];
+      alert(`Campanha: ${c.titulo}\nTipo: ${c.tipo}\nStatus: ${c.status}\n\n${c.conteudo}`);
+    }
+
+    // PRÉ-VISUALIZAÇÃO
+    function abrirPreview() {
+      const conteudo = document.getElementById('conteudoCampanha').value;
+      if (!conteudo.trim()) { alert('Preencha o conteúdo da mensagem antes de pré-visualizar'); return; }
+
+      const linkExemplo = window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + 'confirmar.html?c=PREVIEW&t=11999999999&n=Jo%C3%A3o';
+      const btnHtml = `<a href="${linkExemplo}" target="_blank"
+        style="display:block;margin-top:10px;background:#25d366;color:#fff;text-align:center;
+               padding:10px 14px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">
+        ✅ Confirmar minha presença
+      </a>`;
+
+      const previewTexto = conteudo
+        .replace(/\{nome\}/g, 'João')
+        .replace(/\{link\}/g, '__LINK_BTN__');
+
+      const partes = previewTexto.split('__LINK_BTN__');
+      const el = document.getElementById('previewContent');
+
+      let html = '';
+      if (imagemBase64) html += `<img src="${imagemBase64}" style="width:100%;border-radius:8px;margin-bottom:8px;display:block;">`;
+      html += partes.map((p, i) =>
+        `<span style="white-space:pre-wrap;font-size:12px;">${p}</span>` + (i < partes.length - 1 ? btnHtml : '')
+      ).join('');
+      el.innerHTML = html;
+
+      document.getElementById('previewTime').textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('previewModal').classList.add('active');
+    }
+
+    function fecharPreview() {
+      document.getElementById('previewModal').classList.remove('active');
+    }
+
+    // Fecha o modal ao clicar fora dele
+    window.addEventListener('click', (e) => {
+      const modal = document.getElementById('previewModal');
+      if (e.target === modal) {
+        fecharPreview();
+      }
+    });
+
+    // Form submission (salvar rascunho)
+    document.getElementById('formCampanha').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+      campanhas.push({
+        id: Date.now(),
+        titulo: formData.get('titulo'),
+        tipo: formData.get('tipo'),
+        conteudo: formData.get('conteudo'),
+        detalhes: formData.get('detalhes'),
+        publico: formData.get('publico') || 'todos',
+        imagem: imagemBase64,
+        confirmacao: !!formData.get('confirmacao'),
+        status: 'Rascunho',
+        data: new Date().toLocaleDateString('pt-BR'),
+        leadsContados: filtrarPorPublico(JSON.parse(localStorage.getItem('leads') || '[]'), formData.get('publico') || 'todos').length
+      });
+      localStorage.setItem('campanhas', JSON.stringify(campanhas));
+      alert('✅ Campanha salva como rascunho!');
+      e.target.reset();
+      removerImagem();
+      atualizarPublico();
+      atualizarContador();
+      carregarCampanhas();
+    });
+
+    // Carrega dados ao abrir a página
+    carregarLeads();
+
+    // Atualiza a cada 5 segundos
+    setInterval(carregarLeads, 5000);
+
+    // Carrega indicadores se a aba estiver aberta
+    const abaIndicadores = document.getElementById('indicadores');
+    if (abaIndicadores && abaIndicadores.classList.contains('active')) {
+      carregarIndicadores();
+    }
+  </script>
+
+  <!-- n8n Integration -->
+  <script src="n8n-integration.js"></script>
+  <script>
+    // Configurar n8n quando a página carregar
+    document.addEventListener('DOMContentLoaded', () => {
+      // Configurar webhook URL (você pode mudar aqui depois de ter n8n rodando)
+      const webhookUrl = localStorage.getItem('n8n_webhook_base_url') || '';
+      if (webhookUrl) {
+        n8nIntegration.configurarWebhook(webhookUrl);
+      }
+      
+      // Debug mode (mude para true para ver logs no console)
+      n8nIntegration.setDebug(false);
+      
+      console.log('✅ n8n Integration carregado no proprietario.html');
+      console.log('Stats:', n8nIntegration.obterStats());
+    });
+  </script>
+</body>
+</html>

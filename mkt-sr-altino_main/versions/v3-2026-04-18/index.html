@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Sr. Altino - Bar VIP Osasco</title>
+  <style>
+    :root {
+      --bg: #070909;
+      --card: rgba(255, 255, 255, 0.07);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text: #f4f4f0;
+      --muted: #b6b8b3;
+      --accent: #22f27a;
+      --accent-dark: #10cf5f;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+      --radius: 24px;
+      --max: 1240px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top left, rgba(34, 242, 122, 0.09), transparent 26%),
+                  radial-gradient(circle at right center, rgba(34, 242, 122, 0.06), transparent 20%),
+                  var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: calc(100% - 24px);
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+
+    /* NAVIGATION */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(14px);
+      background: rgba(7, 9, 9, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px 0;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .brand-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(34, 242, 122, 0.12);
+      border: 1px solid rgba(34, 242, 122, 0.35);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      box-shadow: 0 0 0 6px rgba(34, 242, 122, 0.04);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .nav-links {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .nav-links a {
+      text-align: center;
+      font-size: 13px;
+      padding: 10px 8px;
+      color: var(--muted);
+      transition: 0.2s;
+    }
+
+    /* BUTTONS */
+    .btn-primary,
+    .btn-outline,
+    button,
+    input[type=submit] {
+      border: none;
+      cursor: pointer;
+      transition: 0.2s ease;
+      font: inherit;
+      border-radius: 12px;
+      min-height: 48px;
+      min-width: 48px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary,
+    input[type=submit] {
+      background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+      color: #04120a;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 14px 20px;
+      font-size: 13px;
+      box-shadow: 0 10px 30px rgba(34, 242, 122, 0.22);
+      display: block;
+      width: 100%;
+      text-decoration: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 12px 16px;
+      font-size: 13px;
+      display: block;
+      width: 100%;
+      text-decoration: none;
+    }
+
+    /* HERO */
+    .hero {
+      padding: 24px 0;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+
+    .hero h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 28px;
+      line-height: 1.2;
+      margin: 0 0 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p.lead {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin: 0 0 18px;
+    }
+
+    .feature-strip {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .feature-item {
+      padding-left: 12px;
+      border-left: 2px solid rgba(34, 242, 122, 0.75);
+    }
+
+    .feature-item small {
+      display: block;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 9px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .feature-item strong {
+      display: block;
+      font-family: Georgia, serif;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .feature-item span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* CARDS */
+    .glass-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      border-radius: 18px;
+      backdrop-filter: blur(18px);
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -80px auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(34, 242, 122, 0.16), transparent 60%);
+      pointer-events: none;
+    }
+
+    .card-title {
+      font-family: Georgia, serif;
+      color: var(--accent);
+      font-size: 20px;
+      margin: 0 0 6px;
+      font-weight: normal;
+    }
+
+    .card-copy {
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0 0 14px;
+    }
+
+    /* FORMS */
+    .form-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 800;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--text);
+      padding: 10px 0;
+      outline: none;
+      font-size: 15px;
+      font-family: inherit;
+      min-height: 44px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #8f928b;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-bottom-color: var(--accent);
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
+    .form-footer {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .checkbox {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 500;
+    }
+
+    .checkbox input {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* SECTION */
+    .section {
+      padding: 28px 0;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .section h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 28px;
+      line-height: 1.2;
+      margin: 0 0 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .section p.lead {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin: 0 0 18px;
+    }
+
+    /* CALENDAR */
+    .calendar-box {
+      background: rgba(255, 255, 255, 0.94);
+      color: #171717;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .calendar-head,
+    .calendar-week,
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      text-align: center;
+    }
+
+    .calendar-title {
+      grid-column: 1 / -1;
+      font-weight: 700;
+      color: #5a5a5a;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .calendar-week div {
+      font-size: 9px;
+      color: #888;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .calendar-grid button {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 1px solid #ececec;
+      background: white;
+      color: #222;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+      min-height: 36px;
+      font-weight: 600;
+    }
+
+    .calendar-grid button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .calendar-grid button.selected {
+      background: #111;
+      color: white;
+      border-color: #111;
+    }
+
+    .two-cols {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    /* STATUS BAR */
+    .status-bar {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 10px 14px;
+      border-radius: 999px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 16px rgba(34, 242, 122, 0.7);
+      flex-shrink: 0;
+    }
+
+    .success-message {
+      display: none;
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(34, 242, 122, 0.12);
+      border: 1px solid rgba(34, 242, 122, 0.35);
+      color: #c8f7da;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .footer {
+      padding: 24px 0 32px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* TABLET 640px+ */
+    @media (min-width: 640px) {
+      .nav-inner {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 16px 0;
+      }
+
+      .nav-links {
+        grid-template-columns: auto auto auto auto;
+        gap: 16px;
+        width: auto;
+        max-width: none;
+      }
+
+      .nav-links a {
+        padding: 0;
+        font-size: 14px;
+      }
+
+      .btn-primary,
+      .btn-outline,
+      button,
+      input[type=submit] {
+        width: auto;
+        display: inline-block;
+      }
+
+      .hero {
+        padding: 40px 0;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 28px;
+      }
+
+      .hero h1,
+      .section h2 {
+        font-size: 36px;
+      }
+
+      .hero p.lead,
+      .section p.lead {
+        font-size: 18px;
+      }
+
+      .feature-strip {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+
+      .section {
+        padding: 44px 0;
+      }
+
+      .split {
+        grid-template-columns: 1fr 0.95fr;
+        gap: 32px;
+      }
+
+      .two-cols {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .card-title {
+        font-size: 24px;
+      }
+
+      .calendar-grid button {
+        min-height: 40px;
+      }
+    }
+
+    /* DESKTOP 1100px+ */
+    @media (min-width: 1100px) {
+      .hero h1,
+      .section h2 {
+        font-size: 48px;
+      }
+
+      .hero p.lead,
+      .section p.lead {
+        font-size: 20px;
+      }
+
+      .card-title {
+        font-size: 28px;
+      }
+
+      label {
+        font-size: 12px;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-badge">VIP</div>
+        <div>SR. ALTINO</div>
+      </div>
+      <nav class="nav-links">
+        <a href="#lista-vip">Lista VIP</a>
+        <a href="#reservas">Reservas</a>
+        <a href="#contato">Contato</a>
+        <a href="login.html" class="btn-outline">Área do proprietário</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">Música • Gastronomia • Diversão</div>
+          <h1>A Melhor<br>Experiência.</h1>
+          <p class="lead">
+            O Sr. Altino convida você para viver momentos inesquecíveis com o melhor da música,
+            gastronomia e hospitalidade que você merece.
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+            <a class="btn-primary" href="#lista-vip">Entrar para a Lista VIP</a>
+            <a class="btn-outline" href="#reservas">Reservar mesa</a>
+          </div>
+          <div class="feature-strip">
+            <div class="feature-item"><small>Programação</small><strong>Noites Ecléticas</strong><span>O melhor de todos os ritmos</span></div>
+            <div class="feature-item"><small>Eventos</small><strong>Espaço VIP</strong><span>Reservas exclusivas</span></div>
+            <div class="feature-item"><small>Vantagem</small><strong>Bolo Cortesia</strong><span>Para grupos acima de 15</span></div>
+          </div>
+          <div class="status-bar"><span class="dot"></span>Aberto • Rua Altino Arantes, Osasco - SP</div>
+        </div>
+        <div id="lista-vip" class="glass-card">
+          <div class="card-title">Lista VIP Sr. Altino</div>
+          <div class="card-copy">Receba convites, promoções e a agenda da semana no seu WhatsApp.</div>
+          <form class="form-grid" id="vipForm">
+            <label>Seu nome<input type="text" name="nome" placeholder="Ex: Marcelo Silva" required></label>
+            <label>WhatsApp<input type="tel" name="whatsapp" placeholder="(11) 99999-9999" required></label>
+            <label>E-mail (opcional)<input type="email" name="email" placeholder="seu@email.com"></label>
+            <label>Data de aniversário (opcional)<input type="date" name="aniversario"></label>
+            <div class="form-footer">
+              <label class="checkbox"><input type="checkbox" required><span>Autorizo o recebimento de promoções, convites, avisos de eventos e comunicações via WhatsApp.</span></label>
+              <button class="btn-primary" type="submit">Entrar para a Lista</button>
+              <div class="helper">Próximo passo: conectar este formulário a um webhook do n8n.</div>
+            </div>
+          </form>
+          <div class="success-message" id="vipSuccess">✅ Cadastro enviado com sucesso! Você está na lista VIP e verá os dados na área do proprietário.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="reservas" class="section">
+      <div class="container split">
+        <div>
+          <div class="eyebrow">Reserve com a gente</div>
+          <h2>Reserve com<br>A Gente.</h2>
+          <p class="lead">Aniversários, eventos corporativos ou uma reunião com amigos. Deixe a gente cuidar dos detalhes enquanto você aproveita a noite.</p>
+        </div>
+        <div class="glass-card">
+          <div class="card-title">Reservar Data</div>
+          <div class="card-copy">Escolha seu dia especial e nossa equipe entrará em contato para confirmar.</div>
+          <div class="calendar-box">
+            <div class="calendar-head"><div class="calendar-title">Abril 2026</div></div>
+            <div class="calendar-week"><div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div></div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </div>
+          <form class="form-grid" id="reserveForm">
+            <div class="two-cols">
+              <label>Tipo de evento<select name="tipo"><option>Aniversário</option><option>Evento corporativo</option><option>Encontro com amigos</option><option>Comemoração especial</option></select></label>
+              <label>Pessoas<input type="number" name="pessoas" min="2" max="60" value="10" required></label>
+            </div>
+            <label>Seu nome<input type="text" name="nome" placeholder="Ex: Marcelo Silva" required></label>
+            <label>WhatsApp<input type="tel" name="whatsapp" placeholder="(11) 99999-9999" required></label>
+            <label>E-mail (opcional)<input type="email" name="email" placeholder="seu@email.com"></label>
+            <label>Observações<textarea name="obs" rows="3" placeholder="Ex: mesa próxima ao palco, aniversário surpresa, etc."></textarea></label>
+            <button class="btn-primary" type="submit">Solicitar reserva</button>
+            <div class="success-message" id="reserveSuccess">✅ Reserva solicitada com sucesso! Você pode acompanhar na área do proprietário.</div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="contato" class="footer container">
+    Landing page pública • © 2026 Sr. Altino Bar. Todos os direitos reservados.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const calendarGrid = document.getElementById('calendarGrid');
+      let selectedDate = 17;
+      
+      if (calendarGrid) {
+        const totalDays = 35, startOffset = 3;
+        for (let i = 0; i < totalDays; i++) {
+          const btn = document.createElement('button');
+          const dayNumber = i - startOffset + 1;
+          if (i < startOffset || dayNumber > 30) {
+            btn.disabled = true;
+            btn.style.opacity = '.35';
+            btn.textContent = '';
+          } else {
+            btn.textContent = dayNumber;
+            if (dayNumber === selectedDate) btn.classList.add('selected');
+            btn.addEventListener('click', () => {
+              document.querySelectorAll('.calendar-grid button').forEach(el => el.classList.remove('selected'));
+              btn.classList.add('selected');
+              selectedDate = dayNumber;
+            });
+          }
+          calendarGrid.appendChild(btn);
+        }
+      }
+
+      // VIP Form - Salvar no localStorage
+      const vipForm = document.getElementById('vipForm');
+      if (vipForm) {
+        vipForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const formData = new FormData(vipForm);
+          const lead = {
+            id: Date.now(),
+            tipo: 'VIP',
+            nome: formData.get('nome'),
+            whatsapp: formData.get('whatsapp'),
+            email: formData.get('email'),
+            aniversario: formData.get('aniversario'),
+            data: new Date().toLocaleDateString('pt-BR'),
+            status: 'Novo'
+          };
+          
+          let leads = JSON.parse(localStorage.getItem('leads') || '[]');
+          leads.push(lead);
+          localStorage.setItem('leads', JSON.stringify(leads));
+          
+          document.getElementById('vipSuccess').style.display = 'block';
+          vipForm.reset();
+          setTimeout(() => { document.getElementById('vipSuccess').style.display = 'none'; }, 5000);
+        });
+      }
+
+      // Reserve Form - Salvar no localStorage
+      const reserveForm = document.getElementById('reserveForm');
+      if (reserveForm) {
+        reserveForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const formData = new FormData(reserveForm);
+          const lead = {
+            id: Date.now(),
+            tipo: 'Reserva',
+            nome: formData.get('nome'),
+            whatsapp: formData.get('whatsapp'),
+            email: formData.get('email'),
+            tipo_evento: formData.get('tipo'),
+            pessoas: formData.get('pessoas'),
+            observacoes: formData.get('obs'),
+            data_evento: selectedDate + '/04/2026',
+            data_cadastro: new Date().toLocaleDateString('pt-BR'),
+            status: 'Pendente'
+          };
+          
+          let leads = JSON.parse(localStorage.getItem('leads') || '[]');
+          leads.push(lead);
+          localStorage.setItem('leads', JSON.stringify(leads));
+          
+          document.getElementById('reserveSuccess').style.display = 'block';
+          reserveForm.reset();
+          setTimeout(() => { document.getElementById('reserveSuccess').style.display = 'none'; }, 5000);
+        });
+      }
+    });
+  </script>
+
+  <!-- n8n Integration -->
+  <script src="n8n-integration.js"></script>
+  <script>
+    // Configurar n8n quando a página carregar
+    document.addEventListener('DOMContentLoaded', () => {
+      // Configurar webhook URL (você pode mudar aqui depois de ter n8n rodando)
+      const webhookUrl = localStorage.getItem('n8n_webhook_base_url') || '';
+      if (webhookUrl) {
+        n8nIntegration.configurarWebhook(webhookUrl);
+      }
+      
+      // Debug mode (mude para true para ver logs no console)
+      n8nIntegration.setDebug(false);
+    });
+
+    // Integrar VIP Form com n8n
+    document.addEventListener('DOMContentLoaded', () => {
+      const vipForm = document.getElementById('vipForm');
+      if (vipForm) {
+        vipForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const formData = new FormData(vipForm);
+          const nome = formData.get('nome');
+          const whatsapp = formData.get('whatsapp');
+          const email = formData.get('email');
+          const aniversario = formData.get('aniversario') || null;
+          
+          // Enviar para n8n (com fallback para localStorage se não conseguir)
+          if (n8nIntegration.WEBHOOK_URL) {
+            n8nIntegration.novoVIP(nome, whatsapp, email, aniversario,
+              (response) => {
+                console.log('✅ VIP enviado para n8n:', response);
+                document.getElementById('vipSuccess').style.display = 'block';
+                vipForm.reset();
+                setTimeout(() => { document.getElementById('vipSuccess').style.display = 'none'; }, 5000);
+              },
+              (error) => {
+                console.warn('⚠️ Falha n8n, salvando localmente:', error);
+                // Fallback: salvar no localStorage
+                const lead = {
+                  id: Date.now(),
+                  tipo: 'VIP',
+                  nome, whatsapp, email, aniversario,
+                  data: new Date().toLocaleDateString('pt-BR'),
+                  status: 'Pendente (fila n8n)'
+                };
+                let leads = JSON.parse(localStorage.getItem('leads') || '[]');
+                leads.push(lead);
+                localStorage.setItem('leads', JSON.stringify(leads));
+                document.getElementById('vipSuccess').style.display = 'block';
+                vipForm.reset();
+              }
+            );
+          } else {
+            // Sem n8n: apenas localStorage
+            const lead = {
+              id: Date.now(),
+              tipo: 'VIP',
+              nome, whatsapp, email, aniversario,
+              data: new Date().toLocaleDateString('pt-BR'),
+              status: 'Novo'
+            };
+            let leads = JSON.parse(localStorage.getItem('leads') || '[]');
+            leads.push(lead);
+            localStorage.setItem('leads', JSON.stringify(leads));
+            document.getElementById('vipSuccess').style.display = 'block';
+            vipForm.reset();
+            setTimeout(() => { document.getElementById('vipSuccess').style.display = 'none'; }, 5000);
+          }
+        });
+      }
+    });
+
+    // Integrar Reserve Form com n8n
+    document.addEventListener('DOMContentLoaded', () => {
+      const reserveForm = document.getElementById('reserveForm');
+      if (reserveForm) {
+        reserveForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const formData = new FormData(reserveForm);
+          const nome = formData.get('nome');
+          const whatsapp = formData.get('whatsapp');
+          const email = formData.get('email');
+          const tipoEvento = formData.get('tipo');
+          const pessoas = formData.get('pessoas');
+          const dataEvento = selectedDate + '/04/2026';
+          const observacoes = formData.get('obs') || '';
+          
+          // Enviar para n8n
+          if (n8nIntegration.WEBHOOK_URL) {
+            n8nIntegration.novaReserva(nome, whatsapp, email, tipoEvento, pessoas, dataEvento, observacoes,
+              (response) => {
+                console.log('✅ Reserva enviada para n8n:', response);
+                document.getElementById('reserveSuccess').style.display = 'block';
+                reserveForm.reset();
+                setTimeout(() => { document.getElementById('reserveSuccess').style.display = 'none'; }, 5000);
+              },
+              (error) => {
+                console.warn('⚠️ Falha n8n, salvando localmente:', error);
+                const lead = {
+                  id: Date.now(),
+                  tipo: 'Reserva',
+                  nome, whatsapp, email, tipoEvento, pessoas, dataEvento, observacoes,
+                  data_cadastro: new Date().toLocaleDateString('pt-BR'),
+                  status: 'Pendente (fila n8n)'
+                };
+                let leads = JSON.parse(localStorage.getItem('leads') || '[]');
+                leads.push(lead);
+                localStorage.setItem('leads', JSON.stringify(leads));
+                document.getElementById('reserveSuccess').style.display = 'block';
+                reserveForm.reset();
+              }
+            );
+          } else {
+            // Sem n8n: apenas localStorage
+            const lead = {
+              id: Date.now(),
+              tipo: 'Reserva',
+              nome, whatsapp, email, tipoEvento, pessoas, dataEvento, observacoes,
+              data_cadastro: new Date().toLocaleDateString('pt-BR'),
+              status: 'Pendente'
+            };
+            let leads = JSON.parse(localStorage.getItem('leads') || '[]');
+            leads.push(lead);
+            localStorage.setItem('leads', JSON.stringify(leads));
+            document.getElementById('reserveSuccess').style.display = 'block';
+            reserveForm.reset();
+            setTimeout(() => { document.getElementById('reserveSuccess').style.display = 'none'; }, 5000);
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

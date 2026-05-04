@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Login - Área do Proprietário</title>
+  <style>
+    :root {
+      --bg: #070909;
+      --text: #f4f4f0;
+      --muted: #b6b8b3;
+      --accent: #22f27a;
+      --accent-dark: #10cf5f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg) 0%, #1a1a1a 100%);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .login-container {
+      display: grid;
+      place-items: center;
+      width: 100%;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 24px;
+      width: 100%;
+      max-width: 380px;
+      backdrop-filter: blur(10px);
+    }
+
+    .login-card h1 {
+      font-family: Georgia, serif;
+      font-size: 24px;
+      margin: 0 0 4px;
+      text-align: center;
+    }
+
+    .login-card .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .login-form label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--text);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .login-form input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 0;
+      padding: 10px 0;
+      color: var(--text);
+      font-size: 15px;
+      transition: 0.2s;
+      min-height: 44px;
+      font-family: inherit;
+    }
+
+    .login-form input:focus {
+      outline: none;
+      border-bottom-color: var(--accent);
+    }
+
+    .login-form button {
+      background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+      color: #04120a;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(34, 242, 122, 0.22);
+      transition: 0.2s;
+      font-size: 13px;
+      min-height: 48px;
+      font-family: inherit;
+    }
+
+    .login-form button:active {
+      transform: scale(0.98);
+    }
+
+    .error-message {
+      display: none;
+      background: rgba(255, 100, 100, 0.1);
+      border: 1px solid rgba(255, 100, 100, 0.3);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #ff6464;
+      font-size: 13px;
+      margin-top: -8px;
+    }
+
+    .demo-info {
+      background: rgba(34, 242, 122, 0.1);
+      border: 1px solid rgba(34, 242, 122, 0.3);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .demo-info strong {
+      color: var(--accent);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .back-link a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    @media (min-width: 640px) {
+      .login-card {
+        padding: 40px;
+      }
+
+      .login-card h1 {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <h1>Sr. Altino</h1>
+      <div class="subtitle">Área do Proprietário</div>
+      
+      <form class="login-form" id="loginForm">
+        <label>
+          Usuário
+          <input type="text" id="username" placeholder="Digite seu usuário" required>
+        </label>
+        
+        <label>
+          Senha
+          <input type="password" id="password" placeholder="Digite sua senha" required>
+        </label>
+        
+        <div class="error-message" id="errorMessage">Usuário ou senha incorretos</div>
+        
+        <button type="submit">Entrar</button>
+      </form>
+
+      <div class="demo-info">
+        <strong>🔐 Demo - Credenciais de teste:</strong>
+        Usuário: <code>proprietario</code><br>
+        Senha: <code>senha123</code>
+      </div>
+
+      <div class="back-link">
+        <a href="index.html">← Voltar ao site</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('errorMessage');
+      
+      if (AUTH.login(username, password)) {
+        window.location.href = 'proprietario.html';
+      } else {
+        errorMessage.style.display = 'block';
+        document.getElementById('password').value = '';
+      }
+    });
+
+    // Auto-clear erro quando usuário digita
+    document.getElementById('username').addEventListener('input', () => {
+      document.getElementById('errorMessage').style.display = 'none';
+    });
+    document.getElementById('password').addEventListener('input', () => {
+      document.getElementById('errorMessage').style.display = 'none';
+    });
+  </script>
+</body>
+</html>

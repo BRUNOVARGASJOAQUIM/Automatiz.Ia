@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code de Cadastro - Sr. Altino</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      background: linear-gradient(135deg, #070909 0%, #1a1a1a 100%);
+      color: #f4f4f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+
+    .qr-container {
+      width: 100%;
+      max-width: 460px;
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      color: #f4f4f0;
+      font-family: Georgia, serif;
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      margin-bottom: 20px;
+      color: #b6b8b3;
+      font-size: 0.9rem;
+    }
+
+    .qr-form {
+      display: grid;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .mesa-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+    }
+
+    .qr-form label {
+      display: grid;
+      gap: 6px;
+      color: #b6b8b3;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    .qr-form input {
+      min-height: 46px;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.08);
+      color: #f4f4f0;
+      font: inherit;
+      outline: none;
+      padding: 10px 12px;
+    }
+
+    .qr-form input:focus {
+      border-color: #22f27a;
+    }
+
+    .qr-form button,
+    .print-btn,
+    .manual-link a {
+      min-height: 46px;
+      border: 0;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #22f27a, #10cf5f);
+      box-shadow: 0 10px 30px rgba(34,242,122,0.22);
+      color: #04120a;
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 10px 16px;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .qr-form button:hover,
+    .print-btn:hover,
+    .manual-link a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(34,242,122,0.3);
+    }
+
+    .qr-title {
+      margin-top: 6px;
+      color: #22f27a;
+      font-family: Georgia, serif;
+      font-size: 1.55rem;
+    }
+
+    #qrcode {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 232px;
+      margin: 20px 0;
+      padding: 16px;
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    .qr-info {
+      margin-top: 20px;
+      padding: 16px;
+      border: 1px solid rgba(34,242,122,0.3);
+      border-radius: 12px;
+      background: rgba(34,242,122,0.1);
+      color: #b6b8b3;
+      font-size: 0.85rem;
+    }
+
+    .qr-info strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #22f27a;
+    }
+
+    .generated-link {
+      width: 100%;
+      margin-top: 14px;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      background: rgba(0,0,0,0.24);
+      color: #d8dbd4;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .warning {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid rgba(255, 200, 0, 0.35);
+      border-radius: 10px;
+      background: rgba(255, 200, 0, 0.1);
+      color: #ffe08a;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      text-align: left;
+    }
+
+    .manual-link {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .manual-link p {
+      color: #b6b8b3;
+      font-size: 0.85rem;
+    }
+
+    .manual-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .qr-container {
+        padding: 24px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .mesa-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .qr-container {
+        border: 1px solid #ccc;
+        background: #fff;
+        box-shadow: none;
+      }
+
+      h1,
+      .subtitle,
+      .qr-title {
+        color: #000;
+      }
+
+      .qr-form,
+      .manual-link {
+        display: none;
+      }
+
+      .qr-info {
+        border-color: #ccc;
+        background: #f7f7f7;
+        color: #333;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="qr-container">
+    <h1>Sr. Altino</h1>
+    <div class="subtitle">QR Code unico para acessar o cadastro pelo celular</div>
+
+    <form class="qr-form" id="mesaForm">
+      <label>
+        URL publica do site
+        <input id="siteUrlInput" type="url" placeholder="https://seusite.netlify.app">
+      </label>
+      <button type="submit">Gerar QR Code</button>
+    </form>
+
+    <div class="qr-title" id="qrTitle">Cadastro Sr. Altino</div>
+    <div id="qrcode"></div>
+
+    <div class="qr-info">
+      <strong>Acesso do cliente</strong>
+      Ao escanear, o cliente abre diretamente a pagina de cadastro da Lista VIP.
+      <div class="warning" id="warningBox"></div>
+      <div class="generated-link" id="generatedLink"></div>
+    </div>
+
+    <div class="manual-link">
+      <p>Use este mesmo QR Code em todas as mesas, balcão, cardápio ou material impresso.</p>
+      <div class="manual-actions">
+        <a id="testLink" href="index.html#lista-vip">Testar acesso</a>
+        <button class="print-btn" type="button" onclick="window.print()">Imprimir QR Code</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    const qrcodeEl = document.getElementById('qrcode');
+    const siteUrlInput = document.getElementById('siteUrlInput');
+    const qrTitle = document.getElementById('qrTitle');
+    const generatedLink = document.getElementById('generatedLink');
+    const testLink = document.getElementById('testLink');
+    const mesaForm = document.getElementById('mesaForm');
+    const warningBox = document.getElementById('warningBox');
+
+    function getBaseUrl() {
+      const savedUrl = localStorage.getItem('showzap_site_url') || '';
+      if (savedUrl) return savedUrl;
+
+      if (window.location.protocol === 'file:') return '';
+      return window.location.origin + window.location.pathname.split('/').slice(0, -1).join('/');
+    }
+
+    function normalizeSiteUrl(value) {
+      const trimmed = String(value || '').trim().replace(/\/+$/, '');
+      if (!trimmed) return '';
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      return 'https://' + trimmed;
+    }
+
+    function gerarQr() {
+      const siteUrl = normalizeSiteUrl(siteUrlInput.value) || getBaseUrl();
+
+      if (!siteUrl) {
+        qrcodeEl.innerHTML = '<div style="color:#111;font-weight:700;padding:20px;">Informe a URL publica do site</div>';
+        generatedLink.textContent = '';
+        warningBox.textContent = 'O QR nao pode usar um caminho do computador. Publique o site ou informe a URL publica antes de imprimir.';
+        warningBox.style.display = 'block';
+        return;
+      }
+
+      localStorage.setItem('showzap_site_url', siteUrl);
+      siteUrlInput.value = siteUrl;
+
+      const clienteUrl = siteUrl + '/index.html#lista-vip';
+
+      qrcodeEl.innerHTML = '';
+      qrTitle.textContent = 'Cadastro Sr. Altino';
+      generatedLink.textContent = clienteUrl;
+      testLink.href = clienteUrl;
+      warningBox.style.display = window.location.protocol === 'file:' ? 'block' : 'none';
+      warningBox.textContent = 'Se o celular nao abrir, confira se esta URL esta publicada na internet e acessivel fora do computador.';
+
+      if (typeof QRCode === 'undefined') {
+        qrcodeEl.innerHTML = '<div style="color:#111;font-weight:700;padding:20px;">Biblioteca de QR nao carregou. Verifique a internet e recarregue.</div>';
+        return;
+      }
+
+      new QRCode(qrcodeEl, {
+        text: clienteUrl,
+        width: 200,
+        height: 200,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    mesaForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      gerarQr();
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    siteUrlInput.value = normalizeSiteUrl(params.get('url')) || localStorage.getItem('showzap_site_url') || getBaseUrl();
+    gerarQr();
+  </script>
+</body>
+</html>

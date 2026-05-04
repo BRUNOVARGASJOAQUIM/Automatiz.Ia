@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  # Serviço Principal: App Showzap
+  showzap-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: showzap-app
+    ports:
+      - "${APP_PORT:-80}:80"
+    environment:
+      - TZ=America/Sao_Paulo
+      - NODE_ENV=production
+    volumes:
+      # Opcional: para desenvolvimento
+      # - ./index.html:/usr/share/nginx/html/index.html:ro
+      # - ./proprietario.html:/usr/share/nginx/html/proprietario.html:ro
+    networks:
+      - showzap-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "com.showzap.description=Showzap App Server"
+      - "com.showzap.version=1.0"
+
+  # Opcional: Banco de Dados para persistência (Será conectado ao n8n)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: showzap-db
+  #   environment:
+  #     POSTGRES_USER: ${DB_USER:-showzap}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-senha123}
+  #     POSTGRES_DB: ${DB_NAME:-showzap_db}
+  #     TZ: America/Sao_Paulo
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - showzap-network
+  #   restart: unless-stopped
+  #   ports:
+  #     - "5432:5432"
+
+networks:
+  showzap-network:
+    driver: bridge
+
+# volumes:
+#   postgres_data:
+#     driver: local

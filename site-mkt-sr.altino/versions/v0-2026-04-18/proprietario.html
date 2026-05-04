@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Área do Proprietário - Sr. Altino</title>
+  <style>
+    :root {
+      --bg: #070909;
+      --card: rgba(255, 255, 255, 0.07);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text: #f4f4f0;
+      --muted: #b6b8b3;
+      --accent: #22f27a;
+      --accent-dark: #10cf5f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top left, rgba(34, 242, 122, 0.09), transparent 26%),
+                  radial-gradient(circle at right center, rgba(34, 242, 122, 0.06), transparent 20%),
+                  var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: calc(100% - 24px);
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(14px);
+      background: rgba(7, 9, 9, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px 0;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .brand-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(34, 242, 122, 0.12);
+      border: 1px solid rgba(34, 242, 122, 0.35);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .nav-links {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .nav-links a {
+      text-align: center;
+      font-size: 13px;
+      padding: 10px 8px;
+      color: var(--muted);
+    }
+
+    .header-proprietario {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px 0;
+      margin-bottom: 24px;
+    }
+
+    .header-proprietario h1 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: 24px;
+    }
+
+    .header-proprietario > div:first-child p {
+      color: var(--muted);
+      margin: 4px 0 0;
+      font-size: 13px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #04120a;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .user-details h3 {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .user-details p {
+      margin: 0;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .btn-logout {
+      background: rgba(255, 100, 100, 0.1);
+      border: 1px solid rgba(255, 100, 100, 0.3);
+      color: #ff6464;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 12px;
+      font-weight: 600;
+      min-width: 80px;
+    }
+
+    .btn-logout:active {
+      background: rgba(255, 100, 100, 0.2);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .dashboard-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .dashboard-card h3 {
+      font-family: Georgia, serif;
+      font-size: 24px;
+      margin: 0 0 8px;
+      color: var(--accent);
+    }
+
+    .dashboard-card .stat {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 8px 0;
+    }
+
+    .dashboard-card p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .section-proprietario {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 16px;
+    }
+
+    .section-proprietario h2 {
+      font-family: Georgia, serif;
+      font-size: 18px;
+      margin: 0 0 14px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    table th {
+      background: rgba(34, 242, 122, 0.1);
+      padding: 10px 8px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--accent);
+      font-size: 10px;
+    }
+
+    table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .status-confirmado {
+      background: rgba(34, 242, 122, 0.2);
+      color: var(--accent);
+    }
+
+    .status-pendente {
+      background: rgba(255, 200, 0, 0.2);
+      color: #ffc800;
+    }
+
+    .tips-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .tip-item {
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+    }
+
+    .tip-item strong {
+      color: var(--accent);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    /* ABAS */
+    .tabs {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* FORMULÁRIO DE CAMPANHA */
+    .campaign-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+
+    .campaign-form label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .campaign-form input,
+    .campaign-form select,
+    .campaign-form textarea {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text);
+      padding: 10px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .campaign-form textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .campaign-form button {
+      background: var(--accent);
+      color: #04120a;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: 0.2s;
+    }
+
+    .campaign-form button:active {
+      background: var(--accent-dark);
+    }
+
+    .btn-secondary {
+      background: rgba(34, 242, 122, 0.2);
+      color: var(--accent);
+    }
+
+    /* HISTÓRICO DE CAMPANHAS */
+    .campaign-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .campaign-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .campaign-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .campaign-type {
+      display: inline-block;
+      background: rgba(34, 242, 122, 0.15);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .campaign-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .campaign-content {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .campaign-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-small {
+      background: rgba(34, 242, 122, 0.15);
+      border: none;
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .btn-delete {
+      background: rgba(255, 100, 100, 0.15);
+      color: #ff6464;
+    }
+
+    .status-enviada {
+      background: rgba(34, 242, 122, 0.2);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+    }
+
+    .status-rascunho {
+      background: rgba(255, 200, 0, 0.2);
+      color: #ffc800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+    }
+
+    @media (min-width: 640px) {
+      .campaign-form {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .campaign-form label:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .campaign-form button {
+        grid-column: 1 / -1;
+      }
+    }
+
+    /* MODAL DE PRÉ-VISUALIZAÇÃO */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 20px;
+      width: calc(100% - 40px);
+      max-width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255, 100, 100, 0.1);
+      border: none;
+      color: #ff6464;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: grid;
+      place-items: center;
+    }
+
+    .preview-phone {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border: 8px solid #0f0f0f;
+      border-radius: 40px;
+      padding: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+      aspect-ratio: 9 / 19;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      margin: 20px 0;
+    }
+
+    .phone-screen {
+      background: #fff;
+      border-radius: 32px;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .phone-header {
+      background: #075e54;
+      color: white;
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .phone-header::before {
+      content: "SR. ALTINO BAR";
+      display: block;
+    }
+
+    .phone-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      background: #ecf0f1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #000;
+    }
+
+    .message-received {
+      background: #fff;
+      border-radius: 18px;
+      padding: 10px 12px;
+      max-width: 85%;
+      align-self: flex-start;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+
+    .message-time {
+      font-size: 10px;
+      color: #888;
+      text-align: right;
+      padding: 0 12px;
+      margin-top: 4px;
+    }
+
+    .preview-title {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .preview-info {
+      background: rgba(34, 242, 122, 0.1);
+      border-left: 3px solid var(--accent);
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-top: 16px;
+      color: var(--muted);
+    }
+
+    .preview-info strong {
+      color: var(--accent);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* INDICADORES */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .kpi-icon {
+      font-size: 32px;
+      display: grid;
+      place-items: center;
+      width: 60px;
+      height: 60px;
+      background: rgba(34, 242, 122, 0.1);
+      border-radius: 12px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 4px 0;
+    }
+
+    .kpi-detail {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .indicators-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .chart-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 8px;
+      align-items: flex-end;
+      height: 200px;
+      padding: 12px 0;
+    }
+
+    .chart-bar {
+      background: linear-gradient(180deg, var(--accent), rgba(34, 242, 122, 0.6));
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      cursor: pointer;
+      transition: 0.2s;
+      min-height: 20px;
+    }
+
+    .chart-bar:hover {
+      background: linear-gradient(180deg, var(--accent-dark), var(--accent));
+    }
+
+    .chart-label {
+      font-size: 9px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: var(--accent);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .chart-bar:hover .chart-tooltip {
+      opacity: 1;
+    }
+
+    .aniversariante-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 3px solid var(--accent);
+      padding: 12px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .aniversariante-info {
+      flex: 1;
+    }
+
+    .aniversariante-nome {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .aniversariante-data {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .aniversariante-whatsapp {
+      font-size: 11px;
+      color: var(--accent);
+    }
+
+    .insight-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 3px solid var(--accent);
+      padding: 12px;
+      border-radius: 6px;
+    }
+
+    .insight-title {
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .insight-text {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    @media (min-width: 640px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .indicators-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .kpi-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .kpi-icon {
+        margin: 0 auto;
+      }
+    }
+
+    .footer {
+      margin-top: 60px;
+      padding: 24px 0 32px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    @media (min-width: 640px) {
+      .nav-inner {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 16px 0;
+      }
+
+      .nav-links {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        width: auto;
+        max-width: none;
+      }
+
+      .header-proprietario {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+      }
+
+      .header-proprietario h1 {
+        font-size: 32px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .section-proprietario h2 {
+        font-size: 22px;
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      table th,
+      table td {
+        padding: 12px;
+      }
+
+      .tips-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-badge">VIP</div>
+        <div>SR. ALTINO</div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html">← Voltar ao site</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="header-proprietario">
+        <div>
+          <h1>Área do Proprietário</h1>
+          <p>Gerencie seu estabelecimento</p>
+        </div>
+        <div class="user-info">
+          <div class="user-details">
+            <h3 id="userName">Bem-vindo!</h3>
+            <p id="loginTime"></p>
+          </div>
+          <button class="btn-logout" onclick="AUTH.logout()">Sair</button>
+        </div>
+      </div>
+
+      <!-- ABAS DE NAVEGAÇÃO -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="mostrarAba('resumo')">📊 Resumo</button>
+        <button class="tab-btn" onclick="mostrarAba('indicadores')">📈 Indicadores</button>
+        <button class="tab-btn" onclick="mostrarAba('leads')">👥 Leads</button>
+        <button class="tab-btn" onclick="mostrarAba('reservas')">📋 Reservas</button>
+        <button class="tab-btn" onclick="mostrarAba('campanhas')">📢 Campanhas</button>
+      </div>
+
+      <!-- ABA: RESUMO -->
+      <div id="resumo" class="tab-content active">
+
+      <div class="dashboard-grid">
+        <div class="dashboard-card">
+          <h3>📋</h3>
+          <div class="stat" id="totalReservas">0</div>
+          <p>Reservas cadastradas</p>
+        </div>
+        <div class="dashboard-card">
+          <h3>👥</h3>
+          <div class="stat" id="totalVIP">0</div>
+          <p>Inscrições VIP</p>
+        </div>
+        <div class="dashboard-card">
+          <h3>📊</h3>
+          <div class="stat" id="totalLeads">0</div>
+          <p>Total de leads</p>
+        </div>
+      </div>
+
+      <div class="section-proprietario">
+        <h2>📋 Reservas Solicitadas</h2>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Data do Evento</th>
+                <th>Nome</th>
+                <th>Pessoas</th>
+                <th>Tipo de Evento</th>
+                <th>WhatsApp</th>
+                <th>Data de Cadastro</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaReservas">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--muted);">Nenhuma reserva cadastrada</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-proprietario" style="background: rgba(34,242,122,0.08); border-color: rgba(34,242,122,0.2);">
+        <h2>💡 Dicas de Gestão</h2>
+        <div class="tips-grid">
+          <div class="tip-item">
+            <strong>Próximo Passo</strong>
+            <p>Conecte os formulários a um webhook do n8n para automatizar o envio de mensagens no WhatsApp.</p>
+          </div>
+          <div class="tip-item">
+            <strong>Integração</strong>
+            <p>Use ferramentas como n8n, Zapier ou Make para conectar com seu CRM favorito.</p>
+          </div>
+          <div class="tip-item">
+            <strong>Segurança</strong>
+            <p>Em produção, implemente autenticação segura no servidor com banco de dados.</p>
+          </div>
+        </div>
+      </div>
+      </div><!-- FIM: ABA RESUMO -->
+
+      <!-- ABA: INDICADORES -->
+      <div id="indicadores" class="tab-content">
+      <div class="section-proprietario">
+        <h2>📈 Indicadores e Performance</h2>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon">📍</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Taxa de Engajamento</div>
+            <div class="kpi-value" id="kpiEngajamento">0%</div>
+            <div class="kpi-detail" id="kpiEngajamentoDetail">0 de 0 convertidos</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Capacidade Prevista</div>
+            <div class="kpi-value" id="kpiCapacidade">0</div>
+            <div class="kpi-detail">pessoas em reservas</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">🎯</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Evento Mais Popular</div>
+            <div class="kpi-value" id="kpiEventoPopular">—</div>
+            <div class="kpi-detail" id="kpiEventoDetail">0 solicitações</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">🎂</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Aniversariantes Este Mês</div>
+            <div class="kpi-value" id="kpiAniversariantes">0</div>
+            <div class="kpi-detail">oportunidades VIP</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="indicators-grid">
+        <div class="section-proprietario">
+          <h3>🎉 Distribuição de Eventos</h3>
+          <div class="chart-container" id="chartEventos"></div>
+        </div>
+
+        <div class="section-proprietario">
+          <h3>📅 Reservas por Período</h3>
+          <div class="chart-container" id="chartPeriodo"></div>
+        </div>
+      </div>
+
+      <div class="section-proprietario">
+        <h3>🎂 Aniversariantes do Mês</h3>
+        <div id="listaAniversariantes" style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+          <p style="text-align: center; color: var(--muted); padding: 20px;">Nenhum aniversariante no mês</p>
+        </div>
+      </div>
+
+      <div class="section-proprietario">
+        <h3>🏆 Insights de Negócio</h3>
+        <div id="insightsNegocio" style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+          <p style="text-align: center; color: var(--muted); padding: 20px;">Sem dados suficientes para gerar insights</p>
+        </div>
+      </div>
+      </div><!-- FIM: ABA INDICADORES -->
+      <div id="leads" class="tab-content">
+      <div class="section-proprietario">
+        <h2>👥 Inscrições na Lista VIP</h2>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>WhatsApp</th>
+                <th>E-mail</th>
+                <th>Data de Inscrição</th>
+                <th>Aniversário</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaVIP">
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--muted);">Nenhuma inscrição VIP cadastrada</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div><!-- FIM: ABA LEADS -->
+
+      <!-- ABA: RESERVAS -->
+      <div id="reservas" class="tab-content">
+      <div class="section-proprietario">
+        <h2>📋 Todas as Reservas</h2>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Data do Evento</th>
+                <th>Nome</th>
+                <th>Pessoas</th>
+                <th>Tipo de Evento</th>
+                <th>WhatsApp</th>
+                <th>Data de Cadastro</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaReservasCompleta">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--muted);">Nenhuma reserva cadastrada</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div><!-- FIM: ABA RESERVAS -->
+
+      <!-- ABA: CAMPANHAS -->
+      <div id="campanhas" class="tab-content">
+      <div class="section-proprietario">
+        <h2>📢 Nova Campanha</h2>
+        <form class="campaign-form" id="formCampanha">
+          <label>Título Interno
+            <input type="text" name="titulo" placeholder="Ex: Show de Sexta - Rock" required>
+          </label>
+          <label>Tipo de Campanha
+            <select name="tipo" required>
+              <option value="show">🎸 Show</option>
+              <option value="desconto">💰 Desconto</option>
+              <option value="promocao">🎉 Promoção</option>
+              <option value="evento">🎪 Evento</option>
+              <option value="vip">👑 Benefício VIP</option>
+              <option value="alerta">🔔 Alerta</option>
+            </select>
+          </label>
+          <label>Detalhes para IA
+            <textarea name="detalhes" placeholder="Ex: Show da banda X, sexta à noite, convite exclusivo para VIP..." required></textarea>
+          </label>
+          <label style="grid-column: 1 / -1;">
+            <button type="button" onclick="gerarComIA()">✨ Gerar com IA</button>
+          </label>
+          <label style="grid-column: 1 / -1;">Conteúdo da Mensagem
+            <textarea name="conteudo" id="conteudoCampanha" placeholder="A mensagem será preenchida aqui..." required></textarea>
+          </label>
+          <button type="submit">💾 Salvar como Rascunho</button>
+          <button type="button" class="btn-secondary" onclick="enviarCampanha()">📤 Enviar para Leads</button>
+          <button type="button" class="btn-secondary" onclick="abrirPreview()" style="grid-column: 1 / -1;">👁️ Pré-visualizar</button>
+        </form>
+      </div>
+
+      <div class="section-proprietario">
+        <h2>📜 Histórico de Campanhas</h2>
+        <div id="historicoCampanhas"></div>
+      </div>
+      </div><!-- FIM: ABA CAMPANHAS-->
+    </div>
+  </main>
+
+  <!-- MODAL DE PRÉ-VISUALIZAÇÃO -->
+  <div class="modal-overlay" id="previewModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="fecharPreview()">✕</button>
+      
+      <h2 style="text-align: center; margin-top: 0; color: var(--accent);">Pré-visualização da Mensagem</h2>
+      
+      <div class="preview-phone">
+        <div class="phone-screen">
+          <div class="phone-header">📲</div>
+          <div class="phone-messages">
+            <div class="message-received" id="previewContent"></div>
+            <div class="message-time" id="previewTime"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-title">Como seus clientes verão no WhatsApp</div>
+      
+      <div class="preview-info">
+        <strong>💡 Dica:</strong> Esta é uma prévia de como a mensagem será entregue. O conteúdo pode sofrer pequenas alterações dependendo do cliente WhatsApp/SMS utilizado.
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px;">
+        <button class="btn-small" style="grid-column: 1 / -1; padding: 10px; font-size: 12px;" onclick="fecharPreview()">Fechar Pré-visualização</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer container">
+    © 2026 Sr. Altino Bar. Todos os direitos reservados.
+  </footer>
+
+  <script src="auth.js"></script>
+  <script>
+    // Protege a página
+    AUTH.protectPage();
+
+    // Exibe informações do usuário
+    document.getElementById('userName').textContent = 'Olá, ' + AUTH.getUser() + '!';
+    document.getElementById('loginTime').textContent = new Date().toLocaleDateString('pt-BR');
+
+    // ABAS
+    function mostrarAba(abaId) {
+      // Esconde todas as abas
+      document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.remove('active');
+      });
+      // Remove active de todos os botões
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      // Mostra a aba selecionada
+      document.getElementById(abaId).classList.add('active');
+      // Ativa o botão
+      event.target.classList.add('active');
+      // Carrega os dados correspondentes
+      if (abaId === 'indicadores') carregarIndicadores();
+      else if (abaId === 'campanhas') carregarCampanhas();
+      else if (abaId === 'leads' || abaId === 'reservas') carregarLeads();
+    }
+
+    // LEADS
+    function carregarLeads() {
+      const leads = JSON.parse(localStorage.getItem('leads') || '[]');
+      
+      // Separa reservas e VIP
+      const reservas = leads.filter(l => l.tipo === 'Reserva');
+      const vips = leads.filter(l => l.tipo === 'VIP');
+
+      // Atualiza contadores (resumo)
+      document.getElementById('totalReservas').textContent = reservas.length;
+      document.getElementById('totalVIP').textContent = vips.length;
+      document.getElementById('totalLeads').textContent = leads.length;
+
+      // Popula tabela de reservas (resumo)
+      const tabelaReservas = document.getElementById('tabelaReservas');
+      if (reservas.length > 0) {
+        tabelaReservas.innerHTML = reservas.map(r => `
+          <tr>
+            <td>${r.data_evento}</td>
+            <td>${r.nome}</td>
+            <td>${r.pessoas}</td>
+            <td>${r.tipo_evento}</td>
+            <td>${r.whatsapp}</td>
+            <td>${r.data_cadastro}</td>
+          </tr>
+        `).join('');
+      } else {
+        tabelaReservas.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--muted);">Nenhuma reserva cadastrada</td></tr>';
+      }
+
+      // Popula tabela de reservas completa
+      const tabelaReservasCompleta = document.getElementById('tabelaReservasCompleta');
+      if (reservas.length > 0) {
+        tabelaReservasCompleta.innerHTML = reservas.map(r => `
+          <tr>
+            <td>${r.data_evento}</td>
+            <td>${r.nome}</td>
+            <td>${r.pessoas}</td>
+            <td>${r.tipo_evento}</td>
+            <td>${r.whatsapp}</td>
+            <td>${r.data_cadastro}</td>
+          </tr>
+        `).join('');
+      } else {
+        tabelaReservasCompleta.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--muted);">Nenhuma reserva cadastrada</td></tr>';
+      }
+
+      // Popula tabela de VIP
+      const tabelaVIP = document.getElementById('tabelaVIP');
+      if (vips.length > 0) {
+        tabelaVIP.innerHTML = vips.map(v => `
+          <tr>
+            <td>${v.nome}</td>
+            <td>${v.whatsapp}</td>
+            <td>${v.email || '—'}</td>
+            <td>${v.data}</td>
+            <td>${v.aniversario ? new Date(v.aniversario).toLocaleDateString('pt-BR', { month: '2-digit', day: '2-digit' }) : '—'}</td>
+          </tr>
+        `).join('');
+      } else {
+        tabelaVIP.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--muted);">Nenhuma inscrição VIP cadastrada</td></tr>';
+      }
+    }
+
+    // CAMPANHAS
+    function carregarCampanhas() {
+      const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+      const historico = document.getElementById('historicoCampanhas');
+      
+      if (campanhas.length === 0) {
+        historico.innerHTML = '<p style="text-align: center; color: var(--muted); padding: 20px;">Nenhuma campanha criada ainda</p>';
+        return;
+      }
+
+      historico.innerHTML = campanhas.reverse().map((c, idx) => `
+        <div class="campaign-item">
+          <div class="campaign-header">
+            <div>
+              <div class="campaign-title">${c.titulo}</div>
+              <div class="campaign-type">${c.tipo.toUpperCase()}</div>
+            </div>
+            <button class="btn-delete btn-small" onclick="deletarCampanha(${campanhas.length - 1 - idx})">🗑️ Deletar</button>
+          </div>
+          <div class="campaign-meta">
+            <span>📅 ${c.data}</span>
+            <span>📊 ${c.status === 'Enviada' ? '✅ Enviada para ' + c.leadsContados + ' leads' : '📝 ' + c.status}</span>
+          </div>
+          <div class="campaign-content">${c.conteudo}</div>
+          <div class="campaign-actions">
+            <button class="btn-small ${c.status === 'Enviada' ? 'disabled' : ''}" onclick="editarCampanha(${campanhas.length - 1 - idx})" ${c.status === 'Enviada' ? 'disabled' : ''}>✏️ Editar</button>
+            <button class="btn-small" onclick="verDetalhes(${campanhas.length - 1 - idx})">👁️ Ver Detalhes</button>
+            <span class="status-${c.status === 'Enviada' ? 'enviada' : 'rascunho'}">${c.status}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // INDICADORES
+    function carregarIndicadores() {
+      const leads = JSON.parse(localStorage.getItem('leads') || '[]');
+      const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+      
+      const vips = leads.filter(l => l.tipo === 'VIP');
+      const reservas = leads.filter(l => l.tipo === 'Reserva');
+
+      // 1. TAXA DE ENGAJAMENTO
+      const engajamento = leads.length > 0 ? Math.round((reservas.length / leads.length) * 100) : 0;
+      document.getElementById('kpiEngajamento').textContent = engajamento + '%';
+      document.getElementById('kpiEngajamentoDetail').textContent = `${reservas.length} de ${leads.length} convertidos para reserva`;
+
+      // 2. CAPACIDADE PREVISTA
+      const capacidade = reservas.reduce((sum, r) => sum + parseInt(r.pessoas || 0), 0);
+      document.getElementById('kpiCapacidade').textContent = capacidade;
+
+      // 3. EVENTO MAIS POPULAR
+      const eventosContagem = {};
+      reservas.forEach(r => {
+        eventosContagem[r.tipo_evento] = (eventosContagem[r.tipo_evento] || 0) + 1;
+      });
+      const eventoPopular = Object.entries(eventosContagem).sort((a, b) => b[1] - a[1])[0];
+      if (eventoPopular) {
+        document.getElementById('kpiEventoPopular').textContent = eventoPopular[0];
+        document.getElementById('kpiEventoDetail').textContent = `${eventoPopular[1]} solicitações`;
+      } else {
+        document.getElementById('kpiEventoPopular').textContent = '—';
+        document.getElementById('kpiEventoDetail').textContent = '0 solicitações';
+      }
+
+      // 4. ANIVERSARIANTES DO MÊS
+      const mesAtual = new Date().getMonth();
+      const aniversariantes = vips.filter(v => {
+        if (!v.aniversario) return false;
+        const data = new Date(v.aniversario);
+        return data.getMonth() === mesAtual;
+      });
+      document.getElementById('kpiAniversariantes').textContent = aniversariantes.length;
+
+      // 5. GRÁFICO DE DISTRIBUIÇÃO DE EVENTOS
+      const chartEventos = document.getElementById('chartEventos');
+      if (Object.keys(eventosContagem).length > 0) {
+        const maxEventos = Math.max(...Object.values(eventosContagem));
+        chartEventos.innerHTML = Object.entries(eventosContagem).map(([evento, count]) => {
+          const altura = (count / maxEventos) * 100;
+          return `
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <div class="chart-bar" style="height: ${altura}%;">
+                <div class="chart-tooltip">${count}</div>
+              </div>
+              <div class="chart-label">${evento}</div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        chartEventos.innerHTML = '<p style="text-align: center; color: var(--muted); grid-column: 1 / -1; padding: 40px;">Sem reservas para análise</p>';
+      }
+
+      // 6. GRÁFICO DE RESERVAS POR PERÍODO
+      const periodos = {};
+      reservas.forEach(r => {
+        const periodo = r.data_evento ? r.data_evento.split('/')[0] : 'Sem data';
+        periodos[`Dia ${periodo}`] = (periodos[`Dia ${periodo}`] || 0) + 1;
+      });
+
+      const chartPeriodo = document.getElementById('chartPeriodo');
+      if (Object.keys(periodos).length > 0) {
+        const maxPeriodo = Math.max(...Object.values(periodos));
+        chartPeriodo.innerHTML = Object.entries(periodos).map(([periodo, count]) => {
+          const altura = (count / maxPeriodo) * 100;
+          return `
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <div class="chart-bar" style="height: ${altura}%;">
+                <div class="chart-tooltip">${count}</div>
+              </div>
+              <div class="chart-label">${periodo.replace('Dia ', '')}</div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        chartPeriodo.innerHTML = '<p style="text-align: center; color: var(--muted); grid-column: 1 / -1; padding: 40px;">Sem dados de reservas</p>';
+      }
+
+      // 7. LISTA DE ANIVERSARIANTES
+      const listaAniversariantes = document.getElementById('listaAniversariantes');
+      if (aniversariantes.length > 0) {
+        listaAniversariantes.innerHTML = aniversariantes.map(v => {
+          const data = new Date(v.aniversario);
+          const dia = data.getDate();
+          const mes = data.toLocaleDateString('pt-BR', { month: 'long' });
+          return `
+            <div class="aniversariante-item">
+              <div class="aniversariante-info">
+                <div class="aniversariante-nome">🎂 ${v.nome}</div>
+                <div class="aniversariante-data">${dia} de ${mes}</div>
+                <div class="aniversariante-whatsapp">${v.whatsapp}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        listaAniversariantes.innerHTML = '<p style="text-align: center; color: var(--muted); padding: 20px;">Nenhum aniversariante neste mês</p>';
+      }
+
+      // 8. INSIGHTS DE NEGÓCIO
+      const insightsNegocio = document.getElementById('insightsNegocio');
+      const insights = [];
+
+      if (leads.length > 0) {
+        insights.push({
+          titulo: '💡 Taxa de Conversão',
+          texto: `${engajamento}% dos leads se tornaram reservas. ${engajamento > 30 ? '✅ Excelente!' : engajamento > 10 ? '⚠️ Há potencial de melhora' : '🔴 Foco em converter mais leads'}`
+        });
+      }
+
+      if (aniversariantes.length > 0) {
+        insights.push({
+          titulo: '🎂 Oportunidade de Engajamento',
+          texto: `${aniversariantes.length} aniversariante(s) neste mês. Envie uma promoção especial!`
+        });
+      }
+
+      if (reservas.length > 0) {
+        const mediasPessoas = Math.round(capacidade / reservas.length);
+        insights.push({
+          titulo: '👥 Tamanho Médio de Grupos',
+          texto: `${mediasPessoas} pessoas por reserva. Considere promoções para grupos maiores.`
+        });
+      }
+
+      if (Object.keys(eventosContagem).length > 0) {
+        insights.push({
+          titulo: '🎯 Tipo de Evento Mais Popular',
+          texto: `${eventoPopular[0]} é o mais solicitado (${eventoPopular[1]} reservas). Aproveite para criar promoções especializadas.`
+        });
+      }
+
+      if (campanhas.filter(c => c.status === 'Enviada').length > 0) {
+        const campanhasEnviadas = campanhas.filter(c => c.status === 'Enviada').length;
+        insights.push({
+          titulo: '📢 Performance de Campanhas',
+          texto: `${campanhasEnviadas} campanha(s) enviada(s). Continue acompanhando a taxa de conversão.`
+        });
+      }
+
+      if (insights.length > 0) {
+        insightsNegocio.innerHTML = insights.map(i => `
+          <div class="insight-item">
+            <div class="insight-title">${i.titulo}</div>
+            <div class="insight-text">${i.texto}</div>
+          </div>
+        `).join('');
+      } else {
+        insightsNegocio.innerHTML = '<p style="text-align: center; color: var(--muted); padding: 20px;">Envie campanhas e receba leads para gerar insights</p>';
+      }
+    }
+
+    function gerarComIA() {
+      const titulo = document.querySelector('[name="titulo"]').value;
+      const tipo = document.querySelector('[name="tipo"]').value;
+      const detalhes = document.querySelector('[name="detalhes"]').value;
+
+      if (!titulo || !detalhes) {
+        alert('Preencha Título Interno e Detalhes');
+        return;
+      }
+
+      // Templates simples baseados no tipo
+      const templates = {
+        show: `🎸 ${titulo}
+
+${detalhes}
+
+Não perca! Reserve sua mesa ou chegue cedo para garantir seu lugar.
+Confira a programação em nosso site!
+
+Sr. Altino Bar 🍻`,
+        desconto: `💰 PROMOÇÃO ESPECIAL!
+
+${titulo}
+
+${detalhes}
+
+Aproveite por tempo limitado!
+Vem pro Sr. Altino! 🍻`,
+        promocao: `🎉 ${titulo}
+
+${detalhes}
+
+Válido para todos os nossos clientes.
+Confira as condições!
+
+Sr. Altino Bar 🍻`,
+        evento: `🎪 ${titulo}
+
+${detalhes}
+
+Convite especial para você!
+Reserve sua vaga agora no Sr. Altino! 🍻`,
+        vip: `👑 BENEFÍCIO VIP
+
+${titulo}
+
+${detalhes}
+
+Você é VIP para a gente!
+Aproveite seus privilégios!
+
+Sr. Altino Bar 🍻`,
+        alerta: `🔔 AVISO IMPORTANTE
+
+${titulo}
+
+${detalhes}
+
+Fique atento!
+Sr. Altino Bar 🍻`
+      };
+
+      const mensagem = templates[tipo] || templates.show;
+      document.getElementById('conteudoCampanha').value = mensagem;
+    }
+
+    function enviarCampanha() {
+      const form = document.getElementById('formCampanha');
+      if (!form.checkValidity()) {
+        alert('Preencha todos os campos obrigatórios');
+        return;
+      }
+
+      const leads = JSON.parse(localStorage.getItem('leads') || '[]');
+      if (leads.length === 0) {
+        alert('Nenhum lead cadastrado para enviar a campanha');
+        return;
+      }
+
+      const formData = new FormData(form);
+      const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+      
+      const campanha = {
+        id: Date.now(),
+        titulo: formData.get('titulo'),
+        tipo: formData.get('tipo'),
+        conteudo: formData.get('conteudo'),
+        status: 'Enviada',
+        data: new Date().toLocaleDateString('pt-BR'),
+        leadsContados: leads.length,
+        detalhes: formData.get('detalhes')
+      };
+
+      campanhas.push(campanha);
+      localStorage.setItem('campanhas', JSON.stringify(campanhas));
+
+      alert(`✅ Campanha enviada para ${leads.length} leads!`);
+      form.reset();
+      document.getElementById('conteudoCampanha').value = '';
+      carregarCampanhas();
+    }
+
+    function deletarCampanha(idx) {
+      if (confirm('Tem certeza que deseja deletar esta campanha?')) {
+        const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+        campanhas.splice(idx, 1);
+        localStorage.setItem('campanhas', JSON.stringify(campanhas));
+        carregarCampanhas();
+      }
+    }
+
+    function verDetalhes(idx) {
+      const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+      const c = campanhas[idx];
+      alert(`Campanha: ${c.titulo}\nTipo: ${c.tipo}\nStatus: ${c.status}\n\n${c.conteudo}`);
+    }
+
+    // PRÉ-VISUALIZAÇÃO
+    function abrirPreview() {
+      const conteudo = document.getElementById('conteudoCampanha').value;
+      
+      if (!conteudo.trim()) {
+        alert('Preencha o conteúdo da mensagem antes de pré-visualizar');
+        return;
+      }
+
+      // Preenche o modal com o conteúdo
+      document.getElementById('previewContent').textContent = conteudo;
+      document.getElementById('previewTime').textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      
+      // Abre o modal
+      document.getElementById('previewModal').classList.add('active');
+    }
+
+    function fecharPreview() {
+      document.getElementById('previewModal').classList.remove('active');
+    }
+
+    // Fecha o modal ao clicar fora dele
+    window.addEventListener('click', (e) => {
+      const modal = document.getElementById('previewModal');
+      if (e.target === modal) {
+        fecharPreview();
+      }
+    });
+
+    // Form submission
+    document.getElementById('formCampanha').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+      
+      const campanha = {
+        id: Date.now(),
+        titulo: formData.get('titulo'),
+        tipo: formData.get('tipo'),
+        conteudo: formData.get('conteudo'),
+        status: 'Rascunho',
+        data: new Date().toLocaleDateString('pt-BR'),
+        detalhes: formData.get('detalhes')
+      };
+
+      campanhas.push(campanha);
+      localStorage.setItem('campanhas', JSON.stringify(campanhas));
+
+      alert('✅ Campanha salva como rascunho!');
+      e.target.reset();
+      document.getElementById('conteudoCampanha').value = '';
+      carregarCampanhas();
+    });
+
+    // Carrega dados ao abrir a página
+    carregarLeads();
+
+    // Atualiza a cada 5 segundos
+    setInterval(carregarLeads, 5000);
+
+    // Carrega indicadores se a aba estiver aberta
+    const abaIndicadores = document.getElementById('indicadores');
+    if (abaIndicadores && abaIndicadores.classList.contains('active')) {
+      carregarIndicadores();
+    }
+  </script>
+</body>
+</html>
