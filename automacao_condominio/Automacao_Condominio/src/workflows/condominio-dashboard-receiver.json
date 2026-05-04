@@ -1,0 +1,302 @@
+{
+  "name": "🏢 CondoZap — Receiver (Google Sheets + Gmail)",
+  "nodes": [
+    {
+      "id": "node-recv-webhook",
+      "name": "📥 Receiver Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [100, 300],
+      "webhookId": "cz-dashboard",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cz-dashboard",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+
+    {
+      "id": "node-switch-type",
+      "name": "🔀 Tipo de Evento",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [320, 300],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.type }}",
+                    "rightValue": "nova_solicitacao",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Nova Solicitação"
+            },
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.type }}",
+                    "rightValue": "nova_reserva",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Nova Reserva"
+            },
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.type }}",
+                    "rightValue": "ping",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ping"
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "none" }
+      }
+    },
+
+    {
+      "id": "node-extract",
+      "name": "🔍 Extrair Dados do Ticket",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [540, 180],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "e1",  "name": "id",          "value": "={{ $json.body.data.id }}",          "type": "number" },
+            { "id": "e2",  "name": "protocolo",    "value": "={{ $json.body.data.protocolo }}",    "type": "string" },
+            { "id": "e3",  "name": "morador",      "value": "={{ $json.body.data.morador }}",      "type": "string" },
+            { "id": "e4",  "name": "phone",        "value": "={{ $json.body.data.phone }}",        "type": "string" },
+            { "id": "e5",  "name": "unidade",      "value": "={{ $json.body.data.unidade || $json.body.data.phone }}", "type": "string" },
+            { "id": "e6",  "name": "categoria",    "value": "={{ $json.body.data.categoria }}",    "type": "string" },
+            { "id": "e7",  "name": "catKey",       "value": "={{ $json.body.data.catKey }}",       "type": "string" },
+            { "id": "e8",  "name": "icone",        "value": "={{ $json.body.data.icone }}",        "type": "string" },
+            { "id": "e9",  "name": "prioridade",   "value": "={{ $json.body.data.prioridade }}",   "type": "string" },
+            { "id": "e10", "name": "descricao",    "value": "={{ $json.body.data.descricao }}",    "type": "string" },
+            { "id": "e11", "name": "status",       "value": "={{ $json.body.data.status }}",       "type": "string" },
+            { "id": "e12", "name": "data",         "value": "={{ $json.body.data.data }}",         "type": "string" },
+            { "id": "e13", "name": "hora",         "value": "={{ $json.body.data.hora }}",         "type": "string" },
+            { "id": "e14", "name": "ts",           "value": "={{ $json.body.data.ts }}",           "type": "string" }
+          ]
+        },
+        "options": {}
+      }
+    },
+
+    {
+      "id": "node-sheets",
+      "name": "📊 Google Sheets — Registrar",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [760, 180],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "name": "Google Sheets (CondoZap)" }
+      },
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Solicitacoes",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id":         "={{ $json.id }}",
+            "protocolo":  "={{ $json.protocolo }}",
+            "morador":    "={{ $json.morador }}",
+            "phone":      "={{ $json.phone }}",
+            "unidade":    "={{ $json.unidade }}",
+            "categoria":  "={{ $json.categoria }}",
+            "catKey":     "={{ $json.catKey }}",
+            "icone":      "={{ $json.icone }}",
+            "prioridade": "={{ $json.prioridade }}",
+            "descricao":  "={{ $json.descricao }}",
+            "status":     "={{ $json.status }}",
+            "data":       "={{ $json.data }}",
+            "hora":       "={{ $json.hora }}",
+            "ts":         "={{ $json.ts }}"
+          },
+          "matchingColumns": []
+        },
+        "options": {}
+      }
+    },
+
+    {
+      "id": "node-gmail",
+      "name": "📧 Gmail — Notificar Síndico",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [980, 180],
+      "credentials": {
+        "gmailOAuth2": { "name": "Gmail (CondoZap)" }
+      },
+      "parameters": {
+        "sendTo": "={{ $vars.SINDICO_EMAIL }}",
+        "subject": "={{ $json.icone + ' Nova Solicitação — ' + $json.protocolo + ' | ' + $json.categoria + ' | ' + $json.prioridade }}",
+        "emailType": "html",
+        "message": "=<div style=\"font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;\">\n  <div style=\"background:#1d4ed8;color:#fff;padding:24px;border-radius:10px 10px 0 0;\">\n    <div style=\"font-size:24px;margin-bottom:4px;\">🏢 CondoZap</div>\n    <div style=\"font-size:18px;font-weight:700;\">Nova Solicitação Registrada</div>\n  </div>\n  <div style=\"background:#f8fafc;padding:24px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;\">\n    <table style=\"width:100%;border-collapse:collapse;margin-bottom:20px;\">\n      <tr style=\"border-bottom:1px solid #e2e8f0;\">\n        <td style=\"padding:10px 0;color:#64748b;font-size:13px;width:130px;\">Protocolo</td>\n        <td style=\"padding:10px 0;font-weight:700;font-size:14px;\">{{ $json.protocolo }}</td>\n      </tr>\n      <tr style=\"border-bottom:1px solid #e2e8f0;\">\n        <td style=\"padding:10px 0;color:#64748b;font-size:13px;\">Morador</td>\n        <td style=\"padding:10px 0;font-size:14px;\">{{ $json.morador }}</td>\n      </tr>\n      <tr style=\"border-bottom:1px solid #e2e8f0;\">\n        <td style=\"padding:10px 0;color:#64748b;font-size:13px;\">WhatsApp</td>\n        <td style=\"padding:10px 0;font-size:14px;\">{{ $json.phone }}</td>\n      </tr>\n      <tr style=\"border-bottom:1px solid #e2e8f0;\">\n        <td style=\"padding:10px 0;color:#64748b;font-size:13px;\">Categoria</td>\n        <td style=\"padding:10px 0;font-size:14px;\">{{ $json.icone }} {{ $json.categoria }}</td>\n      </tr>\n      <tr style=\"border-bottom:1px solid #e2e8f0;\">\n        <td style=\"padding:10px 0;color:#64748b;font-size:13px;\">Prioridade</td>\n        <td style=\"padding:10px 0;font-size:14px;font-weight:700;color:{{ $json.prioridade === 'Urgente' || $json.prioridade === 'Alta' ? '#ef4444' : $json.prioridade === 'Media' ? '#f59e0b' : '#3b82f6' }};\">{{ $json.prioridade }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding:10px 0;color:#64748b;font-size:13px;\">Data / Hora</td>\n        <td style=\"padding:10px 0;font-size:14px;\">{{ $json.data }} às {{ $json.hora }}</td>\n      </tr>\n    </table>\n    <div>\n      <div style=\"color:#64748b;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;\">Descrição</div>\n      <div style=\"background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;font-size:14px;line-height:1.7;color:#334155;\">{{ $json.descricao }}</div>\n    </div>\n    <div style=\"margin-top:24px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center;\">Enviado automaticamente pelo CondoZap · {{ $json.ts }}</div>\n  </div>\n</div>",
+        "options": {}
+      }
+    },
+
+    {
+      "id": "node-extract-reserva",
+      "name": "🔍 Extrair Dados da Reserva",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [540, 420],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "r1",  "name": "id",           "value": "={{ $json.body.data.id }}",           "type": "number" },
+            { "id": "r2",  "name": "protocolo",     "value": "={{ $json.body.data.protocolo }}",     "type": "string" },
+            { "id": "r3",  "name": "morador",       "value": "={{ $json.body.data.morador }}",       "type": "string" },
+            { "id": "r4",  "name": "phone",         "value": "={{ $json.body.data.phone }}",         "type": "string" },
+            { "id": "r5",  "name": "espaco",        "value": "={{ $json.body.data.espaco }}",        "type": "string" },
+            { "id": "r6",  "name": "espacoLabel",   "value": "={{ $json.body.data.espacoLabel }}",   "type": "string" },
+            { "id": "r7",  "name": "espacoIcon",    "value": "={{ $json.body.data.espacoIcon }}",    "type": "string" },
+            { "id": "r8",  "name": "data",          "value": "={{ $json.body.data.data }}",          "type": "string" },
+            { "id": "r9",  "name": "status",        "value": "={{ $json.body.data.status }}",        "type": "string" },
+            { "id": "r10", "name": "ts",            "value": "={{ $json.body.data.ts }}",            "type": "string" }
+          ]
+        },
+        "options": {}
+      }
+    },
+
+    {
+      "id": "node-sheets-reserva",
+      "name": "📊 Google Sheets — Registrar Reserva",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [760, 420],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "name": "Google Sheets (CondoZap)" }
+      },
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "value": "={{ $vars.GOOGLE_SHEET_ID }}", "mode": "id" },
+        "sheetName":  { "__rl": true, "value": "Reservas", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id":         "={{ $json.id }}",
+            "protocolo":  "={{ $json.protocolo }}",
+            "morador":    "={{ $json.morador }}",
+            "phone":      "={{ $json.phone }}",
+            "espaco":     "={{ $json.espaco }}",
+            "espacoLabel":"={{ $json.espacoLabel }}",
+            "espacoIcon": "={{ $json.espacoIcon }}",
+            "data":       "={{ $json.data }}",
+            "status":     "={{ $json.status }}",
+            "ts":         "={{ $json.ts }}"
+          },
+          "matchingColumns": []
+        },
+        "options": {}
+      }
+    },
+
+    {
+      "id": "node-gmail-reserva",
+      "name": "📧 Gmail — Notificar Reserva",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [980, 420],
+      "credentials": {
+        "gmailOAuth2": { "name": "Gmail (CondoZap)" }
+      },
+      "parameters": {
+        "sendTo": "={{ $vars.SINDICO_EMAIL }}",
+        "subject": "={{ $json.espacoIcon + ' Nova Reserva — ' + $json.protocolo + ' | ' + $json.espacoLabel + ' — ' + $json.data }}",
+        "emailType": "html",
+        "message": "=<div style=\"font-family:sans-serif;max-width:600px;margin:0 auto;\"><div style=\"background:#16a34a;color:#fff;padding:24px;border-radius:10px 10px 0 0;\"><div style=\"font-size:24px;margin-bottom:4px;\">🏢 CondoZap</div><div style=\"font-size:18px;font-weight:700;\">Nova Reserva Confirmada</div></div><div style=\"background:#f8fafc;padding:24px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;\"><table style=\"width:100%;border-collapse:collapse;\"><tr style=\"border-bottom:1px solid #e2e8f0;\"><td style=\"padding:10px 0;color:#64748b;font-size:13px;width:130px;\">Protocolo</td><td style=\"padding:10px 0;font-weight:700;\">{{ $json.protocolo }}</td></tr><tr style=\"border-bottom:1px solid #e2e8f0;\"><td style=\"padding:10px 0;color:#64748b;font-size:13px;\">Espaço</td><td style=\"padding:10px 0;\">{{ $json.espacoIcon }} {{ $json.espacoLabel }}</td></tr><tr style=\"border-bottom:1px solid #e2e8f0;\"><td style=\"padding:10px 0;color:#64748b;font-size:13px;\">Data</td><td style=\"padding:10px 0;font-weight:700;\">{{ $json.data }}</td></tr><tr style=\"border-bottom:1px solid #e2e8f0;\"><td style=\"padding:10px 0;color:#64748b;font-size:13px;\">Morador</td><td style=\"padding:10px 0;\">{{ $json.morador }}</td></tr><tr><td style=\"padding:10px 0;color:#64748b;font-size:13px;\">WhatsApp</td><td style=\"padding:10px 0;\">{{ $json.phone }}</td></tr></table><div style=\"margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center;\">Enviado automaticamente pelo CondoZap</div></div></div>",
+        "options": {}
+      }
+    },
+
+    {
+      "id": "node-ping-noop",
+      "name": "✅ Ping OK",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [540, 580],
+      "parameters": {}
+    }
+  ],
+
+  "connections": {
+    "📥 Receiver Webhook": {
+      "main": [[
+        { "node": "🔀 Tipo de Evento", "type": "main", "index": 0 }
+      ]]
+    },
+    "🔀 Tipo de Evento": {
+      "main": [
+        [{ "node": "🔍 Extrair Dados do Ticket",  "type": "main", "index": 0 }],
+        [{ "node": "🔍 Extrair Dados da Reserva", "type": "main", "index": 0 }],
+        [{ "node": "✅ Ping OK",                  "type": "main", "index": 0 }]
+      ]
+    },
+    "🔍 Extrair Dados do Ticket": {
+      "main": [[{ "node": "📊 Google Sheets — Registrar",        "type": "main", "index": 0 }]]
+    },
+    "📊 Google Sheets — Registrar": {
+      "main": [[{ "node": "📧 Gmail — Notificar Síndico",         "type": "main", "index": 0 }]]
+    },
+    "🔍 Extrair Dados da Reserva": {
+      "main": [[{ "node": "📊 Google Sheets — Registrar Reserva", "type": "main", "index": 0 }]]
+    },
+    "📊 Google Sheets — Registrar Reserva": {
+      "main": [[{ "node": "📧 Gmail — Notificar Reserva",         "type": "main", "index": 0 }]]
+    }
+  },
+
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "versionId": "1.0.0",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "id": "cz-workflow-receiver",
+  "tags": [
+    { "name": "condominio" },
+    { "name": "google-workspace" },
+    { "name": "automacao" }
+  ]
+}

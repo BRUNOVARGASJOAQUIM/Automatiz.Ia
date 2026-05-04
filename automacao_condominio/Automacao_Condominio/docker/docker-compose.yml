@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: condozap-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       n8n
+      POSTGRES_USER:     n8n
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: condozap-n8n
+    restart: unless-stopped
+    ports:
+      - "5679:5678"
+    environment:
+      DB_TYPE:                    postgresdb
+      DB_POSTGRESDB_HOST:         postgres
+      DB_POSTGRESDB_PORT:         5432
+      DB_POSTGRESDB_DATABASE:     n8n
+      DB_POSTGRESDB_USER:         n8n
+      DB_POSTGRESDB_PASSWORD:     ${POSTGRES_PASSWORD}
+      N8N_BASIC_AUTH_ACTIVE:      true
+      N8N_BASIC_AUTH_USER:        ${N8N_USER}
+      N8N_BASIC_AUTH_PASSWORD:    ${N8N_PASSWORD}
+      WEBHOOK_URL:                ${N8N_WEBHOOK_URL}
+      N8N_HOST:                   ${N8N_HOST}
+      N8N_PORT:                   5678
+      N8N_PROTOCOL:               http
+      GENERIC_TIMEZONE:           America/Sao_Paulo
+      TZ:                         America/Sao_Paulo
+      EXECUTIONS_PROCESS:         main
+      EXECUTIONS_DATA_SAVE_ON_ERROR:    all
+      EXECUTIONS_DATA_SAVE_ON_SUCCESS:  none
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  evolution-api:
+    image: atendai/evolution-api:latest
+    container_name: condozap-evolution
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_URL:                     ${EVOLUTION_PUBLIC_URL}
+      AUTHENTICATION_TYPE:            apikey
+      AUTHENTICATION_API_KEY:         ${EVOLUTION_API_KEY}
+      DATABASE_PROVIDER:              sqlite
+      DATABASE_CONNECTION_URI:        sqlite:///evolution/instances/database.sqlite
+      DATABASE_ENABLED:               true
+      REDIS_ENABLED:                  false
+      STORE_MESSAGES:                 true
+      STORE_MESSAGE_UP:               true
+      STORE_CONTACTS:                 true
+      STORE_CHATS:                    true
+      DEL_INSTANCE:                   false
+      WEBHOOK_GLOBAL_URL:             ${N8N_WEBHOOK_URL}/webhook/cz-whatsapp
+      WEBHOOK_GLOBAL_ENABLED:         false
+      WEBHOOK_EVENTS_MESSAGES_UPSERT: true
+    volumes:
+      - evolution_data:/evolution/instances
+
+volumes:
+  postgres_data:
+  n8n_data:
+  evolution_data:

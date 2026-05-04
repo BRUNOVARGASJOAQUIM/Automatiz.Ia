@@ -1,0 +1,922 @@
+{
+  "name": "🏢 CondoZap — WhatsApp v2",
+  "nodes": [
+
+    {
+      "id": "node-webhook",
+      "name": "📱 Entrada Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [100, 400],
+      "webhookId": "cz-whatsapp-main",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cz-whatsapp",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+
+    {
+      "id": "node-extract",
+      "name": "🔍 Extrair Mensagem",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [300, 400],
+      "parameters": {
+        "jsCode": "const body=$input.first().json;\nlet phone='',message='',pushName='';\nif(body.data?.key){\n  const d=body.data;\n  if(d.key?.fromMe||d.key?.remoteJid?.endsWith('@g.us'))return[];\n  phone=(d.key?.remoteJid||'').replace('@s.whatsapp.net','').replace(/\\D/g,'');\n  message=d.message?.conversation||d.message?.extendedTextMessage?.text||d.message?.buttonsResponseMessage?.selectedButtonId||'';\n  pushName=d.pushName||'';\n}else if(body.event==='messages.upsert'&&body.data){\n  const d=body.data;\n  if(d.key?.fromMe||d.key?.remoteJid?.endsWith('@g.us'))return[];\n  phone=(d.key?.remoteJid||'').replace('@s.whatsapp.net','').replace(/\\D/g,'');\n  message=d.message?.conversation||d.message?.extendedTextMessage?.text||'';\n  pushName=d.pushName||'';\n}else if(body.phone!==undefined){\n  if(body.fromMe||body.isGroup)return[];\n  phone=(body.phone||'').replace(/\\D/g,'');\n  message=body.text?.message||body.text||'';\n  pushName=body.senderName||'';\n}else return[];\nif(!phone||!message.trim())return[];\nif(!phone.startsWith('55'))phone='55'+phone;\nreturn[{json:{phone,message:message.trim(),ml:message.trim().toLowerCase().replace(/[\\u{1F300}-\\u{1F9FF}]/gu,'').trim(),pushName,ts:new Date().toISOString()}}];"
+      }
+    },
+
+    {
+      "id": "node-session",
+      "name": "🗄️ Sessão",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nif(!sd.sessions)sd.sessions={};\nconst now=Date.now();\nfor(const k of Object.keys(sd.sessions))if(now-(sd.sessions[k]._ts||0)>1800000)delete sd.sessions[k];\nconst key='S_'+d.phone;\nif(!sd.sessions[key])sd.sessions[key]={state:'novo',cat:null,catLabel:null,catIcon:null,priority:'Media',espaco:null,espacoLabel:null,dataReserva:null,_ts:now};\nsd.sessions[key]._ts=now;\nreturn[{json:{...d,session:{...sd.sessions[key]},sessionKey:key}}];"
+      }
+    },
+
+    {
+      "id": "node-switch-state",
+      "name": "🔀 Switch: Estado",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [700, 400],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.session.state }}","rightValue":"aguardando_detalhes","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Detalhes"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.session.state }}","rightValue":"aguardando_categoria","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Categoria"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.session.state }}","rightValue":"aguardando_protocolo","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Protocolo"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.session.state }}","rightValue":"aguardando_espaco","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Espaco"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.session.state }}","rightValue":"aguardando_data_reserva","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "DataReserva"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.session.state }}","rightValue":"aguardando_confirm_reserva","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "ConfirmReserva"
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+
+    {
+      "id": "node-menu-principal",
+      "name": "📋 Menu Principal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 700],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nsess.state='aguardando_menu_principal';\nsess.cat=null;sess.espaco=null;sess.dataReserva=null;\nsd.sessions[d.sessionKey]=sess;\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nconst nome=$vars.CONDO_NAME||'Condomínio';\nconst oi=d.pushName?`Olá, *${d.pushName}*! 👋\\n\\n`:'';\nconst txt=`🏢 *${nome}*\\n\\n${oi}Como posso te ajudar?\\n\\n1️⃣ 🔧  Abrir solicitação\\n2️⃣ 🔍  Consultar protocolo\\n3️⃣ 📦  Encomendas na portaria\\n4️⃣ 🗓️  Reservar espaço\\n0️⃣ 👤  Falar com o síndico\\n\\n_Ou escreva livremente!_ 🤖`;\nreturn[{json:{phone:d.phone,menuText:txt,ev,inst,key}}];"
+      }
+    },
+
+    {
+      "id": "node-send-menu",
+      "name": "📲 Enviar Menu",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1100, 700],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.menuText }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-switch-menu",
+      "name": "🔀 Switch: Menu Principal",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [900, 400],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"1","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Solicitacao"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"2","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Protocolo"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"3","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Encomendas"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"4","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Reserva"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"0","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Sindico"
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+
+    {
+      "id": "node-go-sol-submenu",
+      "name": "📌 Ir → Sub-menu Solicitação",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 200],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nsess.state='aguardando_categoria';\nsd.sessions[d.sessionKey]=sess;\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nconst txt=`🔧 *O que você precisa?*\\n\\n1️⃣ 🔧  Manutenção (unidade)\\n2️⃣ 💰  Financeiro / Boleto\\n3️⃣ 🔐  Segurança\\n4️⃣ 🔊  Barulho / Perturbação\\n5️⃣ 🏊  Áreas comuns\\n\\n0️⃣ ↩   Voltar ao menu principal\\n\\n_Ou descreva livremente!_`;\nreturn[{json:{phone:d.phone,txt,ev,inst,key}}];"
+      }
+    },
+
+    {
+      "id": "node-send-sol-submenu",
+      "name": "📲 Enviar Sub-menu Sol.",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-go-protocolo",
+      "name": "📌 Ir → Consultar Protocolo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 320],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nsess.state='aguardando_protocolo';\nsd.sessions[d.sessionKey]=sess;\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nconst txt=`🔍 *Consultar Protocolo*\\n\\nInforme o número do protocolo:\\n_(Ex: CZ890123)_\\n\\nOu digite *cancelar* para voltar.`;\nreturn[{json:{phone:d.phone,txt,ev,inst,key}}];"
+      }
+    },
+
+    {
+      "id": "node-send-ask-protocolo",
+      "name": "📲 Perguntar Protocolo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 320],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-lookup-encomendas",
+      "name": "📦 Buscar Encomendas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 440],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst csvUrl=$vars.ENCOMENDAS_CSV_URL||'';\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nlet txt='';\nif(!csvUrl){\n  txt='📦 Sistema de encomendas em configuração.\\n\\nProcure a portaria pessoalmente. 🙂';\n  return[{json:{phone:d.phone,txt,ev,inst,key}}];\n}\ntry{\n  const sep=csvUrl.includes('?')?'&':'?';\n  const r=await fetch(csvUrl+sep+'_='+Date.now());\n  const raw=await r.text();\n  const rows=raw.trim().split('\\n').map(l=>{\n    const cols=[];let cur='',inQ=false;\n    for(const ch of l){if(ch==='\"')inQ=!inQ;else if(ch===','&&!inQ){cols.push(cur);cur='';}else cur+=ch;}\n    cols.push(cur);return cols;\n  });\n  if(rows.length<2){txt='📭 Nenhuma encomenda no momento.\\n\\nAssim que chegar algo, avisamos! 😊';}\n  else{\n    const hdr=rows[0].map(h=>h.trim());\n    const get=(row,col)=>(row[hdr.indexOf(col)]||'').trim();\n    const phone=d.phone.replace(/\\D/g,'');\n    const enc=rows.slice(1).filter(row=>get(row,'phone').replace(/\\D/g,'')==phone&&get(row,'status')!=='Retirada');\n    if(!enc.length){txt='📭 Nenhuma encomenda pendente no momento.\\n\\nAssim que chegar algo, avisamos! 😊';}\n    else{\n      const lista=enc.map((row,i)=>`${i+1}. 📦 ${get(row,'remetente')||'Remetente não informado'} — chegou ${get(row,'data_chegada')}`).join('\\n');\n      txt=`📦 *Você tem ${enc.length} encomenda(s) na portaria:*\\n\\n${lista}\\n\\nRetire em horário comercial.\\n\\nDigite *menu* para voltar.`;\n    }\n  }\n}catch(e){\n  txt='📦 Não foi possível verificar encomendas agora. Tente novamente em breve.';\n}\nreturn[{json:{phone:d.phone,txt,ev,inst,key}}];"
+      }
+    },
+
+    {
+      "id": "node-send-encomendas",
+      "name": "📲 Enviar Encomendas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 440],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-go-espacos",
+      "name": "📌 Ir → Menu Espaços",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 560],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nsess.state='aguardando_espaco';\nsd.sessions[d.sessionKey]=sess;\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nconst txt=`🗓️ *Reservar Espaço*\\n\\nQual espaço você quer reservar?\\n\\n1️⃣ 🎉  Salão de festas\\n2️⃣ 🍖  Churrasqueira\\n3️⃣ 🏃  Quadra esportiva\\n\\n0️⃣ ↩   Voltar ao menu`;\nreturn[{json:{phone:d.phone,txt,ev,inst,key}}];"
+      }
+    },
+
+    {
+      "id": "node-send-menu-espacos",
+      "name": "📲 Enviar Menu Espaços",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 560],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-sindico-direto",
+      "name": "📌 Ir → Síndico Direto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 680],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nsess.state='aguardando_detalhes';\nsess.cat='outros';\nsess.catLabel='Contato Síndico';\nsess.catIcon='👤';\nsess.priority='Media';\nsd.sessions[d.sessionKey]=sess;\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nconst txt=`👤 *Falar com o Síndico*\\n\\nDeixe sua mensagem e o síndico retornará em breve:\\n\\n_(Atendimento: seg–sex, 8h–18h)_\\n\\nOu digite *cancelar* para voltar.`;\nreturn[{json:{phone:d.phone,pushName:d.pushName,sessionKey:d.sessionKey,txt,ev,inst,key}}];"
+      }
+    },
+
+    {
+      "id": "node-send-sindico-q",
+      "name": "📲 Enviar Pergunta Síndico",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 680],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-claude-intent",
+      "name": "🤖 Claude — Intenção Livre",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 800],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst apiKey=$vars.ANTHROPIC_API_KEY||'';\nconst sd=$getWorkflowStaticData('global');\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nconst intentMap={\n  solicitacao:{label:'Solicitação',state:'aguardando_categoria',cat:null},\n  protocolo:{label:'Protocolo',state:'aguardando_protocolo',cat:null},\n  encomenda:{label:'Encomenda',state:'__encomenda__',cat:null},\n  reserva:{label:'Reserva',state:'aguardando_espaco',cat:null},\n  sindico:{label:'Síndico',state:'aguardando_detalhes',cat:'outros',catLabel:'Contato Síndico',catIcon:'👤'}\n};\nif(!apiKey){\n  const sess=sd.sessions[d.sessionKey]||{};\n  sess.state='aguardando_menu_principal';\n  sd.sessions[d.sessionKey]=sess;\n  const nome=$vars.CONDO_NAME||'Condomínio';\n  const txt=`🏢 *${nome}*\\n\\nNão entendi. Use as opções:\\n\\n1️⃣ 🔧  Abrir solicitação\\n2️⃣ 🔍  Protocolo\\n3️⃣ 📦  Encomendas\\n4️⃣ 🗓️  Reservar espaço\\n0️⃣ 👤  Síndico`;\n  return[{json:{phone:d.phone,pushName:d.pushName,sessionKey:d.sessionKey,__action:'menu_fallback',txt,ev,inst,key}}];\n}\ntry{\n  const r=await fetch('https://api.anthropic.com/v1/messages',{\n    method:'POST',\n    headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json'},\n    body:JSON.stringify({\n      model:'claude-haiku-4-5-20251001',\n      max_tokens:60,\n      system:'Classifique a mensagem do morador de condomínio em UMA das intenções: solicitacao, protocolo, encomenda, reserva, sindico. Responda APENAS com o JSON: {\"intent\":\"solicitacao\"}',\n      messages:[{role:'user',content:`Mensagem: \"${d.message}\"`}]\n    })\n  });\n  const res=await r.json();\n  const text=res.content?.[0]?.text||'{}';\n  const m=text.match(/\\{[^}]+\\}/);\n  const parsed=m?JSON.parse(m[0]):{};\n  const intent=parsed.intent in intentMap?parsed.intent:'solicitacao';\n  const info=intentMap[intent];\n  const sess=sd.sessions[d.sessionKey]||{};\n  if(info.state==='__encomenda__'){\n    return[{json:{...d,__action:'encomenda',ev,inst,key}}];\n  }\n  sess.state=info.state;\n  if(info.cat){sess.cat=info.cat;sess.catLabel=info.catLabel;sess.catIcon=info.catIcon;sess.priority='Media';}\n  sd.sessions[d.sessionKey]=sess;\n  return[{json:{...d,__intent:intent,__action:info.state,ev,inst,key}}];\n}catch(e){\n  return[{json:{...d,__action:'menu_fallback',ev,inst,key}}];\n}"
+      }
+    },
+
+    {
+      "id": "node-switch-intent",
+      "name": "🔀 Rotear Intenção Claude",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1300, 800],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.__action }}","rightValue":"aguardando_categoria","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "SubMenuSol"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.__action }}","rightValue":"aguardando_protocolo","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Protocolo"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.__action }}","rightValue":"encomenda","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Encomenda"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.__action }}","rightValue":"aguardando_espaco","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Reserva"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.__action }}","rightValue":"aguardando_detalhes","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Sindico"
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+
+    {
+      "id": "node-intent-menu-fallback",
+      "name": "📲 Menu (fallback intent)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1500, 900],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-lookup-protocolo",
+      "name": "🔍 Lookup Protocolo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 1000],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst cancelWords=['cancelar','cancel','menu','voltar','inicio','início','0'];\nif(cancelWords.includes(d.ml)){\n  const sess=sd.sessions[d.sessionKey]||{};\n  sess.state='aguardando_menu_principal';\n  sd.sessions[d.sessionKey]=sess;\n  return[{json:{...d,__found:false,__cancel:true}}];\n}\nconst csvUrl=$vars.SHEETS_CSV_URL||'';\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nconst proto=d.message.trim().toUpperCase();\nconst sess=sd.sessions[d.sessionKey]||{};\nsess.state='aguardando_menu_principal';\nsd.sessions[d.sessionKey]=sess;\nif(!csvUrl){\n  return[{json:{phone:d.phone,__found:false,__cancel:false,txt:'🔍 Sistema de consulta em configuração. Tente novamente em breve.',ev,inst,key}}];\n}\ntry{\n  const sep=csvUrl.includes('?')?'&':'?';\n  const r=await fetch(csvUrl+sep+'_='+Date.now());\n  const raw=await r.text();\n  const rows=raw.trim().split('\\n').map(l=>{\n    const cols=[];let cur='',inQ=false;\n    for(const ch of l){if(ch==='\"')inQ=!inQ;else if(ch===','&&!inQ){cols.push(cur);cur='';}else cur+=ch;}\n    cols.push(cur);return cols;\n  });\n  const hdr=rows[0].map(h=>h.trim());\n  const get=(row,col)=>(row[hdr.indexOf(col)]||'').trim();\n  const found=rows.slice(1).find(row=>get(row,'protocolo').toUpperCase()===proto);\n  if(!found){\n    const txt=`❌ Protocolo *${proto}* não encontrado.\\n\\nVerifique o número e tente novamente, ou digite *menu*.`;\n    return[{json:{phone:d.phone,__found:false,__cancel:false,txt,ev,inst,key}}];\n  }\n  const statusIco={Aberta:'🔵',\"Em andamento\":'🔄',Resolvida:'✅',Cancelada:'⛔'};\n  const status=get(found,'status');\n  const txt=`✅ *Protocolo ${proto}*\\n\\n${get(found,'icone')||'📋'} *${get(found,'categoria')}*\\n👤 ${get(found,'morador')}\\n📅 ${get(found,'data')} às ${get(found,'hora')}\\n\\nStatus: ${statusIco[status]||'📋'} *${status}*\\n\\n_${status==='Resolvida'?'Solicitação concluída!':'Nossa equipe está cuidando disso.'}_\\n\\nDigite *menu* para voltar.`;\n  return[{json:{phone:d.phone,__found:true,__cancel:false,txt,ev,inst,key}}];\n}catch(e){\n  return[{json:{phone:d.phone,__found:false,__cancel:false,txt:'❌ Erro ao consultar. Tente novamente em breve.',ev,inst,key}}];\n}"
+      }
+    },
+
+    {
+      "id": "node-send-protocolo-result",
+      "name": "📲 Enviar Resultado Protocolo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1100, 1000],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-switch-espaco",
+      "name": "🔀 Switch: Escolha Espaço",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [900, 1200],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"1","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Salao"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"2","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Churrasco"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"3","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Quadra"
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+
+    {
+      "id": "node-set-salao",
+      "name": "📌 Espaço: Salão",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1100, 1100],
+      "parameters": {
+        "assignments": {"assignments":[
+          {"id":"s1","name":"espacoKey","value":"salao","type":"string"},
+          {"id":"s2","name":"espacoLabel","value":"Salão de festas","type":"string"},
+          {"id":"s3","name":"espacoIcon","value":"🎉","type":"string"}
+        ]},
+        "includeOtherFields": true, "options": {}
+      }
+    },
+
+    {
+      "id": "node-set-churrasco",
+      "name": "📌 Espaço: Churrasqueira",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1100, 1200],
+      "parameters": {
+        "assignments": {"assignments":[
+          {"id":"c1","name":"espacoKey","value":"churrasco","type":"string"},
+          {"id":"c2","name":"espacoLabel","value":"Churrasqueira","type":"string"},
+          {"id":"c3","name":"espacoIcon","value":"🍖","type":"string"}
+        ]},
+        "includeOtherFields": true, "options": {}
+      }
+    },
+
+    {
+      "id": "node-set-quadra",
+      "name": "📌 Espaço: Quadra",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1100, 1300],
+      "parameters": {
+        "assignments": {"assignments":[
+          {"id":"q1","name":"espacoKey","value":"quadra","type":"string"},
+          {"id":"q2","name":"espacoLabel","value":"Quadra esportiva","type":"string"},
+          {"id":"q3","name":"espacoIcon","value":"🏃","type":"string"}
+        ]},
+        "includeOtherFields": true, "options": {}
+      }
+    },
+
+    {
+      "id": "node-ask-data-reserva",
+      "name": "❓ Pedir Data da Reserva",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 1200],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nsess.state='aguardando_data_reserva';\nsess.espaco=d.espacoKey;\nsess.espacoLabel=d.espacoLabel;\nsess.espacoIcon=d.espacoIcon;\nsd.sessions[d.sessionKey]=sess;\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nconst txt=`${d.espacoIcon} *${d.espacoLabel}*\\n\\nQual a data que você quer reservar?\\n_(Ex: 25/05)_\\n\\nOu digite *cancelar* para voltar.`;\nreturn[{json:{phone:d.phone,pushName:d.pushName,sessionKey:d.sessionKey,txt,ev,inst,key}}];"
+      }
+    },
+
+    {
+      "id": "node-send-ask-data",
+      "name": "📲 Enviar Pedido Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1500, 1200],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-check-data-reserva",
+      "name": "🗓️ Verificar Disponibilidade",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 1400],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nconst cancelWords=['cancelar','cancel','menu','voltar','0'];\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nif(cancelWords.includes(d.ml)){\n  sess.state='aguardando_menu_principal';\n  sd.sessions[d.sessionKey]=sess;\n  return[{json:{...d,__available:false,__cancel:true,ev,inst,key}}];\n}\nconst raw=d.message.trim();\nconst dateMatch=raw.match(/(\\d{1,2})[\\/-](\\d{1,2})(?:[\\/-](\\d{2,4}))?/);\nif(!dateMatch){\n  const txt=`⚠️ Não entendi a data. Informe no formato:\\n_(Ex: 25/05 ou 25/05/2026)_`;\n  return[{json:{phone:d.phone,__available:false,__cancel:false,__invalid:true,txt,ev,inst,key}}];\n}\nconst day=dateMatch[1].padStart(2,'0');\nconst month=dateMatch[2].padStart(2,'0');\nconst year=dateMatch[3]?(dateMatch[3].length===2?'20'+dateMatch[3]:dateMatch[3]):new Date().getFullYear();\nconst dataFormatada=`${day}/${month}/${year}`;\nsess.dataReserva=dataFormatada;\nsd.sessions[d.sessionKey]=sess;\nconst csvUrl=$vars.RESERVAS_CSV_URL||'';\nif(!csvUrl){\n  sess.state='aguardando_confirm_reserva';\n  sd.sessions[d.sessionKey]=sess;\n  const icon=sess.espacoIcon||'🗓️';\n  const label=sess.espacoLabel||sess.espaco;\n  const txt=`✅ *${dataFormatada}* está disponível!\\n\\n${icon} *${label}*\\n👤 ${d.pushName||d.phone}\\n\\nConfirmar reserva?\\n\\n1️⃣  Sim, confirmar\\n2️⃣  Escolher outra data\\n0️⃣  Cancelar`;\n  return[{json:{phone:d.phone,pushName:d.pushName,sessionKey:d.sessionKey,__available:true,__cancel:false,dataFormatada,txt,ev,inst,key}}];\n}\ntry{\n  const sep=csvUrl.includes('?')?'&':'?';\n  const r=await fetch(csvUrl+sep+'_='+Date.now());\n  const rawCsv=await r.text();\n  const rows=rawCsv.trim().split('\\n').map(l=>{\n    const cols=[];let cur='',inQ=false;\n    for(const ch of l){if(ch==='\"')inQ=!inQ;else if(ch===','&&!inQ){cols.push(cur);cur='';}else cur+=ch;}\n    cols.push(cur);return cols;\n  });\n  const hdr=rows[0].map(h=>h.trim());\n  const get=(row,col)=>(row[hdr.indexOf(col)]||'').trim();\n  const ocupado=rows.slice(1).some(row=>get(row,'espaco')===sess.espaco&&get(row,'data')===dataFormatada&&get(row,'status')!=='Cancelada');\n  const icon=sess.espacoIcon||'🗓️';\n  const label=sess.espacoLabel||sess.espaco;\n  if(ocupado){\n    const txt=`❌ *${dataFormatada}* já está reservado para o ${label}.\\n\\nEscolha outra data:\\n_(Ex: 27/05)_\\n\\nOu digite *cancelar*.`;\n    return[{json:{phone:d.phone,pushName:d.pushName,sessionKey:d.sessionKey,__available:false,__cancel:false,dataFormatada,txt,ev,inst,key}}];\n  }\n  sess.state='aguardando_confirm_reserva';\n  sd.sessions[d.sessionKey]=sess;\n  const txt=`✅ *${dataFormatada}* está disponível!\\n\\n${icon} *${label}*\\n👤 ${d.pushName||d.phone}\\n\\nConfirmar reserva?\\n\\n1️⃣  Sim, confirmar\\n2️⃣  Escolher outra data\\n0️⃣  Cancelar`;\n  return[{json:{phone:d.phone,pushName:d.pushName,sessionKey:d.sessionKey,__available:true,__cancel:false,dataFormatada,txt,ev,inst,key}}];\n}catch(e){\n  sess.state='aguardando_confirm_reserva';\n  sd.sessions[d.sessionKey]=sess;\n  const icon=sess.espacoIcon||'🗓️';const label=sess.espacoLabel||sess.espaco;\n  const txt=`✅ *${dataFormatada}* parece disponível!\\n\\n${icon} *${label}*\\n\\nConfirmar reserva?\\n\\n1️⃣  Sim\\n2️⃣  Outra data\\n0️⃣  Cancelar`;\n  return[{json:{phone:d.phone,pushName:d.pushName,sessionKey:d.sessionKey,__available:true,__cancel:false,dataFormatada,txt,ev,inst,key}}];\n}"
+      }
+    },
+
+    {
+      "id": "node-send-data-result",
+      "name": "📲 Enviar Resultado Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1100, 1400],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-switch-confirma",
+      "name": "🔀 Switch: Confirmar Reserva",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [900, 1600],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"1","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "Confirmar"
+            },
+            {
+              "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"2","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},
+              "renameOutput": true, "outputKey": "OutraData"
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+
+    {
+      "id": "node-criar-reserva",
+      "name": "🎉 Criar Reserva",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 1550],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nconst protocolo='RES-'+String(Date.now()).slice(-5);\nconst reserva={\n  id:Date.now(),protocolo,\n  morador:d.pushName||d.phone,phone:d.phone,\n  espaco:sess.espaco,espacoLabel:sess.espacoLabel,espacoIcon:sess.espacoIcon||'🗓️',\n  data:sess.dataReserva,\n  status:'Confirmada',\n  ts:new Date().toISOString()\n};\nsess.state='aguardando_menu_principal';\nsess.espaco=null;sess.espacoLabel=null;sess.dataReserva=null;\nsd.sessions[d.sessionKey]=sess;\nconst dashUrl=$vars.DASHBOARD_WEBHOOK_URL||'';\nconst evUrl=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst evInst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst evKey=$vars.EVOLUTION_API_KEY||'';\nconst respSindico=$vars.RESP_SINDICO||'';\nconst txtMorador=`✅ *Reserva Confirmada!*\\n\\n${reserva.espacoIcon} *${reserva.espacoLabel}*\\n📅 ${reserva.data}\\n👤 ${reserva.morador}\\n🔖 Protocolo: *${protocolo}*\\n\\nLembre-se das regras de uso do espaço.\\nBom evento! 🥳\\n\\nDigite *menu* para voltar.`;\nconst txtSindico=`🏢 *Nova Reserva — ${protocolo}*\\n\\n${reserva.espacoIcon} *${reserva.espacoLabel}*\\n📅 ${reserva.data}\\n👤 ${reserva.morador}\\n📞 ${reserva.phone}`;\nreturn[{json:{reserva,dashUrl,evUrl,evInst,evKey,phone:d.phone,respSindico,txtMorador,txtSindico}}];"
+      }
+    },
+
+    {
+      "id": "node-post-reserva-dash",
+      "name": "📊 Salvar Reserva Dashboard",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 1490],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.dashUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ type: 'nova_reserva', data: $json.reserva }) }}",
+        "options": {"timeout":6000,"allowUnauthorizedCerts":true,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-wp-confirm-reserva",
+      "name": "📲 WA → Confirmar Morador (Reserva)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 1600],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.evUrl }}/message/sendText/{{ $json.evInst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.evKey }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txtMorador }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-wp-notify-reserva",
+      "name": "📲 WA → Notificar Síndico (Reserva)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 1710],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.evUrl }}/message/sendText/{{ $json.evInst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.evKey }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.respSindico, text: $json.txtSindico }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-outra-data",
+      "name": "📌 Pedir Outra Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 1650],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nsess.state='aguardando_data_reserva';\nsd.sessions[d.sessionKey]=sess;\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nconst icon=sess.espacoIcon||'🗓️';\nconst label=sess.espacoLabel||sess.espaco;\nconst txt=`${icon} *${label}*\\n\\nQual outra data prefere?\\n_(Ex: 28/05)_\\n\\nOu digite *cancelar* para voltar.`;\nreturn[{json:{phone:d.phone,pushName:d.pushName,sessionKey:d.sessionKey,txt,ev,inst,key}}];"
+      }
+    },
+
+    {
+      "id": "node-send-outra-data",
+      "name": "📲 Enviar Pedir Outra Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, 1650],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-switch-cat",
+      "name": "🔀 Switch: Categoria Solicitação",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [900, -200],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {"conditions":{"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"1","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},"renameOutput":true,"outputKey":"1 - Manutenção"},
+            {"conditions":{"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"2","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},"renameOutput":true,"outputKey":"2 - Financeiro"},
+            {"conditions":{"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"3","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},"renameOutput":true,"outputKey":"3 - Segurança"},
+            {"conditions":{"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"4","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},"renameOutput":true,"outputKey":"4 - Barulho"},
+            {"conditions":{"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"5","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},"renameOutput":true,"outputKey":"5 - Áreas"},
+            {"conditions":{"options":{},"conditions":[{"leftValue":"={{ $json.ml }}","rightValue":"0","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},"renameOutput":true,"outputKey":"0 - Voltar"}
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+
+    {"id":"node-set-manu","name":"📌 Cat: Manutenção","type":"n8n-nodes-base.set","typeVersion":3,"position":[1100,-320],"parameters":{"assignments":{"assignments":[{"id":"m1","name":"catKey","value":"manutencao","type":"string"},{"id":"m2","name":"catLabel","value":"Manutenção","type":"string"},{"id":"m3","name":"catIcon","value":"🔧","type":"string"},{"id":"m4","name":"priority","value":"Media","type":"string"},{"id":"m5","name":"catQuestion","value":"🔧 *Manutenção*\n\nDescreva o problema:\n_(ex: torneira vazando, luz queimada, elevador com defeito)_\n\nOu *cancelar* para voltar.","type":"string"}]},"includeOtherFields":true,"options":{}}},
+    {"id":"node-set-fin","name":"📌 Cat: Financeiro","type":"n8n-nodes-base.set","typeVersion":3,"position":[1100,-220],"parameters":{"assignments":{"assignments":[{"id":"f1","name":"catKey","value":"financeiro","type":"string"},{"id":"f2","name":"catLabel","value":"Financeiro","type":"string"},{"id":"f3","name":"catIcon","value":"💰","type":"string"},{"id":"f4","name":"priority","value":"Alta","type":"string"},{"id":"f5","name":"catQuestion","value":"💰 *Financeiro / Boleto*\n\nDescreva sua dúvida:\n_(ex: não recebi boleto, cobrança indevida, 2ª via)_\n\nOu *cancelar* para voltar.","type":"string"}]},"includeOtherFields":true,"options":{}}},
+    {"id":"node-set-seg","name":"📌 Cat: Segurança","type":"n8n-nodes-base.set","typeVersion":3,"position":[1100,-120],"parameters":{"assignments":{"assignments":[{"id":"s1","name":"catKey","value":"seguranca","type":"string"},{"id":"s2","name":"catLabel","value":"Segurança","type":"string"},{"id":"s3","name":"catIcon","value":"🔐","type":"string"},{"id":"s4","name":"priority","value":"Urgente","type":"string"},{"id":"s5","name":"catQuestion","value":"🔐 *Segurança*\n\nDescreva o problema:\n_(ex: câmera quebrada, portão sem fechar, pessoa suspeita)_\n\n⚠️ Emergência? Acione a portaria agora!\n\nOu *cancelar* para voltar.","type":"string"}]},"includeOtherFields":true,"options":{}}},
+    {"id":"node-set-bar","name":"📌 Cat: Barulho","type":"n8n-nodes-base.set","typeVersion":3,"position":[1100,-20],"parameters":{"assignments":{"assignments":[{"id":"b1","name":"catKey","value":"barulho","type":"string"},{"id":"b2","name":"catLabel","value":"Barulho/Perturbação","type":"string"},{"id":"b3","name":"catIcon","value":"🔊","type":"string"},{"id":"b4","name":"priority","value":"Alta","type":"string"},{"id":"b5","name":"catQuestion","value":"🔊 *Barulho / Perturbação*\n\nInforme:\n- Apartamento de onde vem\n- Tipo de barulho\n- Horário\n\nOu *cancelar* para voltar.","type":"string"}]},"includeOtherFields":true,"options":{}}},
+    {"id":"node-set-areas","name":"📌 Cat: Áreas Comuns","type":"n8n-nodes-base.set","typeVersion":3,"position":[1100,80],"parameters":{"assignments":{"assignments":[{"id":"a1","name":"catKey","value":"areas","type":"string"},{"id":"a2","name":"catLabel","value":"Áreas Comuns","type":"string"},{"id":"a3","name":"catIcon","value":"🏊","type":"string"},{"id":"a4","name":"priority","value":"Media","type":"string"},{"id":"a5","name":"catQuestion","value":"🏊 *Áreas Comuns*\n\nDescreva o problema:\n_(ex: piscina suja, academia com equipamento quebrado)_\n\nOu *cancelar* para voltar.","type":"string"}]},"includeOtherFields":true,"options":{}}},
+
+    {
+      "id": "node-claude-cat",
+      "name": "🤖 Claude — Classificar Categoria",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 180],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst apiKey=$vars.ANTHROPIC_API_KEY||'';\nconst catMap={manutencao:{label:'Manutenção',icon:'🔧',question:'🔧 Entendi! Descreva melhor o problema:\\n_(ou *cancelar* para voltar)_',priority:'Media'},financeiro:{label:'Financeiro',icon:'💰',question:'💰 Entendi! Descreva sua questão:\\n_(ou *cancelar* para voltar)_',priority:'Alta'},seguranca:{label:'Segurança',icon:'🔐',question:'🔐 Entendi! Descreva o problema de segurança:\\n_(ou *cancelar* para voltar)_',priority:'Urgente'},barulho:{label:'Barulho/Perturbação',icon:'🔊',question:'🔊 Entendi! Informe local e horário:\\n_(ou *cancelar* para voltar)_',priority:'Alta'},areas:{label:'Áreas Comuns',icon:'🏊',question:'🏊 Entendi! Descreva o problema na área:\\n_(ou *cancelar* para voltar)_',priority:'Media'},outros:{label:'Outros',icon:'📋',question:'📋 Entendi! Me dê mais detalhes:\\n_(ou *cancelar* para voltar)_',priority:'Media'}};\nif(!apiKey){const c=catMap.outros;return[{json:{...d,catKey:'outros',catLabel:c.label,catIcon:c.icon,catQuestion:c.question,priority:c.priority}}];}\ntry{\n  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:80,system:'Classifique a mensagem do morador. Responda APENAS com JSON: {\"cat\":\"manutencao|financeiro|seguranca|barulho|areas|outros\",\"priority\":\"Baixa|Media|Alta|Urgente\"}',messages:[{role:'user',content:`Classifique: \"${d.message}\"`}]}));\n  const res=await r.json();\n  const m=(res.content?.[0]?.text||'{}').match(/\\{[^}]+\\}/);\n  const parsed=m?JSON.parse(m[0]):{};\n  const ck=parsed.cat in catMap?parsed.cat:'outros';\n  const info=catMap[ck];\n  return[{json:{...d,catKey:ck,catLabel:info.label,catIcon:info.icon,catQuestion:info.question,priority:parsed.priority||info.priority}}];\n}catch(e){\n  const c=catMap.outros;return[{json:{...d,catKey:'outros',catLabel:c.label,catIcon:c.icon,catQuestion:c.question,priority:c.priority}}];\n}"
+      }
+    },
+
+    {
+      "id": "node-perguntar",
+      "name": "❓ Perguntar Detalhes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, -80],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nsess.state='aguardando_detalhes';\nsess.cat=d.catKey;\nsess.catLabel=d.catLabel||d.catKey;\nsess.catIcon=d.catIcon||'📋';\nsess.priority=d.priority||'Media';\nsess._ts=Date.now();\nsd.sessions[d.sessionKey]=sess;\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nreturn[{json:{phone:d.phone,question:d.catQuestion,ev,inst,key}}];"
+      }
+    },
+
+    {
+      "id": "node-send-question",
+      "name": "📲 Enviar Pergunta Detalhes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1500, -80],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.question }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-criar-ticket",
+      "name": "🎫 Criar Ticket",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, -400],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions[d.sessionKey]||{};\nconst cancelWords=['cancelar','cancel','menu','início','inicio','0','sair','voltar'];\nif(cancelWords.includes(d.ml)){\n  sess.state='aguardando_menu_principal';\n  sd.sessions[d.sessionKey]=sess;\n  return[{json:{__action:'menu',phone:d.phone,pushName:d.pushName}}];\n}\nconst ticket={\n  id:Date.now(),\n  protocolo:'CZ'+String(Date.now()).slice(-6),\n  morador:d.pushName||d.phone,phone:d.phone,\n  categoria:sess.catLabel||'Outros',catKey:sess.cat||'outros',icone:sess.catIcon||'📋',\n  prioridade:sess.priority||'Media',descricao:d.message,status:'Aberta',\n  data:new Date().toLocaleDateString('pt-BR'),\n  hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),\n  ts:new Date().toISOString()\n};\nsess.state='aguardando_menu_principal';\nsess.cat=null;sd.sessions[d.sessionKey]=sess;\nconst evUrl=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst evInst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst evKey=$vars.EVOLUTION_API_KEY||'';\nconst dashUrl=$vars.DASHBOARD_WEBHOOK_URL||'';\nconst respMap={manutencao:$vars.RESP_ZELADOR||'',financeiro:$vars.RESP_FINANCEIRO||'',seguranca:$vars.RESP_PORTARIA||'',barulho:$vars.RESP_SINDICO||'',areas:$vars.RESP_ZELADOR||'',outros:$vars.RESP_SINDICO||''};\nconst respPhone=respMap[ticket.catKey]||$vars.RESP_SINDICO||'';\nreturn[{json:{ticket,evUrl,evInst,evKey,dashUrl,respPhone,morador:d.phone,pushName:d.pushName||'Morador',__action:'ticket'}}];"
+      }
+    },
+
+    {
+      "id": "node-if-cancel",
+      "name": "⚡ Ticket ou Menu?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1100, -400],
+      "parameters": {
+        "conditions": {"options":{},"conditions":[{"leftValue":"={{ $json.__action }}","rightValue":"ticket","operator":{"type":"string","operation":"equals"}}],"combinator":"and"}
+      }
+    },
+
+    {
+      "id": "node-post-dash",
+      "name": "📊 Salvar no Dashboard",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, -480],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.dashUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ type: 'nova_solicitacao', data: $json.ticket }) }}",
+        "options": {"timeout":6000,"allowUnauthorizedCerts":true,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-wp-resp",
+      "name": "📲 WA → Responsável",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, -380],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.evUrl }}/message/sendText/{{ $json.evInst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.evKey }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.respPhone, text: `🏢 *Nova Solicitação — ${$json.ticket.protocolo}*\\n\\n${$json.ticket.icone} *${$json.ticket.categoria}* | ${$json.ticket.prioridade}\\n👤 ${$json.ticket.morador} · 📞 ${$json.ticket.phone}\\n\\n📝 ${$json.ticket.descricao}\\n\\n📅 ${$json.ticket.data} às ${$json.ticket.hora}` }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-wp-confirm-ticket",
+      "name": "📲 WA → Confirmar Morador",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1300, -280],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.evUrl }}/message/sendText/{{ $json.evInst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.evKey }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.morador, text: `✅ *Solicitação registrada!*\\n\\nOlá, *${$json.pushName}*! 👋\\n\\n${$json.ticket.icone} ${$json.ticket.categoria}\\n🔖 Protocolo: *${$json.ticket.protocolo}*\\n\\nNossa equipe foi notificada e entrará em contato em breve.\\n\\n_Digite *2* para consultar o status do protocolo._` }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    },
+
+    {
+      "id": "node-menu-pos-cancel",
+      "name": "📋 Menu (pós cancelamento)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, -180],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst sd=$getWorkflowStaticData('global');\nconst sess=sd.sessions['S_'+d.phone]||{};\nsess.state='aguardando_menu_principal';\nsess.cat=null;\nsd.sessions['S_'+d.phone]=sess;\nconst ev=$vars.EVOLUTION_API_URL||'http://localhost:8080';\nconst inst=$vars.EVOLUTION_API_INSTANCE||'condo';\nconst key=$vars.EVOLUTION_API_KEY||'';\nconst nome=$vars.CONDO_NAME||'Condomínio';\nconst txt=`🏢 *${nome}*\\n\\nSolicitação cancelada.\\n\\n1️⃣ 🔧  Abrir solicitação\\n2️⃣ 🔍  Protocolo\\n3️⃣ 📦  Encomendas\\n4️⃣ 🗓️  Reservar espaço\\n0️⃣ 👤  Síndico`;\nreturn[{json:{phone:d.phone,txt,ev,inst,key}}];"
+      }
+    },
+
+    {
+      "id": "node-send-menu-cancel",
+      "name": "📲 Enviar Menu (Cancelamento)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1500, -180],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ev }}/message/sendText/{{ $json.inst }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters":[{"name":"apikey","value":"={{ $json.key }}"},{"name":"Content-Type","value":"application/json"}]},
+        "sendBody": true, "contentType": "raw",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.txt }) }}",
+        "options": {"timeout":8000,"ignore400":true}
+      }
+    }
+
+  ],
+
+  "connections": {
+    "📱 Entrada Webhook":         { "main": [[{ "node": "🔍 Extrair Mensagem",          "type": "main", "index": 0 }]] },
+    "🔍 Extrair Mensagem":        { "main": [[{ "node": "🗄️ Sessão",                    "type": "main", "index": 0 }]] },
+    "🗄️ Sessão":                  { "main": [[{ "node": "🔀 Switch: Estado",             "type": "main", "index": 0 }]] },
+
+    "🔀 Switch: Estado": {
+      "main": [
+        [{ "node": "🎫 Criar Ticket",                 "type": "main", "index": 0 }],
+        [{ "node": "🔀 Switch: Categoria Solicitação", "type": "main", "index": 0 }],
+        [{ "node": "🔍 Lookup Protocolo",              "type": "main", "index": 0 }],
+        [{ "node": "🔀 Switch: Escolha Espaço",        "type": "main", "index": 0 }],
+        [{ "node": "🗓️ Verificar Disponibilidade",    "type": "main", "index": 0 }],
+        [{ "node": "🔀 Switch: Confirmar Reserva",     "type": "main", "index": 0 }],
+        [{ "node": "🔀 Switch: Menu Principal",        "type": "main", "index": 0 }]
+      ]
+    },
+
+    "🔀 Switch: Menu Principal": {
+      "main": [
+        [{ "node": "📌 Ir → Sub-menu Solicitação", "type": "main", "index": 0 }],
+        [{ "node": "📌 Ir → Consultar Protocolo",  "type": "main", "index": 0 }],
+        [{ "node": "📦 Buscar Encomendas",          "type": "main", "index": 0 }],
+        [{ "node": "📌 Ir → Menu Espaços",          "type": "main", "index": 0 }],
+        [{ "node": "📌 Ir → Síndico Direto",        "type": "main", "index": 0 }],
+        [{ "node": "🤖 Claude — Intenção Livre",    "type": "main", "index": 0 }]
+      ]
+    },
+
+    "📌 Ir → Sub-menu Solicitação": { "main": [[{ "node": "📲 Enviar Sub-menu Sol.", "type": "main", "index": 0 }]] },
+    "📌 Ir → Consultar Protocolo":  { "main": [[{ "node": "📲 Perguntar Protocolo",   "type": "main", "index": 0 }]] },
+    "📦 Buscar Encomendas":          { "main": [[{ "node": "📲 Enviar Encomendas",     "type": "main", "index": 0 }]] },
+    "📌 Ir → Menu Espaços":          { "main": [[{ "node": "📲 Enviar Menu Espaços",   "type": "main", "index": 0 }]] },
+    "📌 Ir → Síndico Direto":        { "main": [[{ "node": "📲 Enviar Pergunta Síndico","type": "main", "index": 0 }]] },
+
+    "🤖 Claude — Intenção Livre": { "main": [[{ "node": "🔀 Rotear Intenção Claude", "type": "main", "index": 0 }]] },
+    "🔀 Rotear Intenção Claude": {
+      "main": [
+        [{ "node": "📌 Ir → Sub-menu Solicitação", "type": "main", "index": 0 }],
+        [{ "node": "📌 Ir → Consultar Protocolo",  "type": "main", "index": 0 }],
+        [{ "node": "📦 Buscar Encomendas",          "type": "main", "index": 0 }],
+        [{ "node": "📌 Ir → Menu Espaços",          "type": "main", "index": 0 }],
+        [{ "node": "📌 Ir → Síndico Direto",        "type": "main", "index": 0 }],
+        [{ "node": "📲 Menu (fallback intent)",      "type": "main", "index": 0 }]
+      ]
+    },
+
+    "🔍 Lookup Protocolo":  { "main": [[{ "node": "📲 Enviar Resultado Protocolo", "type": "main", "index": 0 }]] },
+
+    "🔀 Switch: Escolha Espaço": {
+      "main": [
+        [{ "node": "📌 Espaço: Salão",        "type": "main", "index": 0 }],
+        [{ "node": "📌 Espaço: Churrasqueira", "type": "main", "index": 0 }],
+        [{ "node": "📌 Espaço: Quadra",        "type": "main", "index": 0 }],
+        [{ "node": "📋 Menu Principal",         "type": "main", "index": 0 }]
+      ]
+    },
+    "📌 Espaço: Salão":        { "main": [[{ "node": "❓ Pedir Data da Reserva", "type": "main", "index": 0 }]] },
+    "📌 Espaço: Churrasqueira": { "main": [[{ "node": "❓ Pedir Data da Reserva", "type": "main", "index": 0 }]] },
+    "📌 Espaço: Quadra":        { "main": [[{ "node": "❓ Pedir Data da Reserva", "type": "main", "index": 0 }]] },
+    "❓ Pedir Data da Reserva": { "main": [[{ "node": "📲 Enviar Pedido Data",    "type": "main", "index": 0 }]] },
+
+    "🗓️ Verificar Disponibilidade": { "main": [[{ "node": "📲 Enviar Resultado Data", "type": "main", "index": 0 }]] },
+
+    "🔀 Switch: Confirmar Reserva": {
+      "main": [
+        [{ "node": "🎉 Criar Reserva",     "type": "main", "index": 0 }],
+        [{ "node": "📌 Pedir Outra Data",  "type": "main", "index": 0 }],
+        [{ "node": "📋 Menu Principal",    "type": "main", "index": 0 }]
+      ]
+    },
+    "🎉 Criar Reserva": {
+      "main": [[
+        { "node": "📊 Salvar Reserva Dashboard",         "type": "main", "index": 0 },
+        { "node": "📲 WA → Confirmar Morador (Reserva)", "type": "main", "index": 0 },
+        { "node": "📲 WA → Notificar Síndico (Reserva)", "type": "main", "index": 0 }
+      ]]
+    },
+    "📌 Pedir Outra Data": { "main": [[{ "node": "📲 Enviar Pedir Outra Data", "type": "main", "index": 0 }]] },
+
+    "🔀 Switch: Categoria Solicitação": {
+      "main": [
+        [{ "node": "📌 Cat: Manutenção",   "type": "main", "index": 0 }],
+        [{ "node": "📌 Cat: Financeiro",   "type": "main", "index": 0 }],
+        [{ "node": "📌 Cat: Segurança",    "type": "main", "index": 0 }],
+        [{ "node": "📌 Cat: Barulho",      "type": "main", "index": 0 }],
+        [{ "node": "📌 Cat: Áreas Comuns", "type": "main", "index": 0 }],
+        [{ "node": "📋 Menu Principal",    "type": "main", "index": 0 }],
+        [{ "node": "🤖 Claude — Classificar Categoria", "type": "main", "index": 0 }]
+      ]
+    },
+    "📌 Cat: Manutenção":   { "main": [[{ "node": "❓ Perguntar Detalhes", "type": "main", "index": 0 }]] },
+    "📌 Cat: Financeiro":   { "main": [[{ "node": "❓ Perguntar Detalhes", "type": "main", "index": 0 }]] },
+    "📌 Cat: Segurança":    { "main": [[{ "node": "❓ Perguntar Detalhes", "type": "main", "index": 0 }]] },
+    "📌 Cat: Barulho":      { "main": [[{ "node": "❓ Perguntar Detalhes", "type": "main", "index": 0 }]] },
+    "📌 Cat: Áreas Comuns": { "main": [[{ "node": "❓ Perguntar Detalhes", "type": "main", "index": 0 }]] },
+    "🤖 Claude — Classificar Categoria": { "main": [[{ "node": "❓ Perguntar Detalhes", "type": "main", "index": 0 }]] },
+    "❓ Perguntar Detalhes": { "main": [[{ "node": "📲 Enviar Pergunta Detalhes", "type": "main", "index": 0 }]] },
+
+    "🎫 Criar Ticket": { "main": [[{ "node": "⚡ Ticket ou Menu?", "type": "main", "index": 0 }]] },
+    "⚡ Ticket ou Menu?": {
+      "main": [
+        [
+          { "node": "📊 Salvar no Dashboard",   "type": "main", "index": 0 },
+          { "node": "📲 WA → Responsável",       "type": "main", "index": 0 },
+          { "node": "📲 WA → Confirmar Morador", "type": "main", "index": 0 }
+        ],
+        [{ "node": "📋 Menu (pós cancelamento)", "type": "main", "index": 0 }]
+      ]
+    },
+    "📋 Menu (pós cancelamento)": { "main": [[{ "node": "📲 Enviar Menu (Cancelamento)", "type": "main", "index": 0 }]] },
+    "📋 Menu Principal":           { "main": [[{ "node": "📲 Enviar Menu",                "type": "main", "index": 0 }]] }
+  },
+
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "versionId": "2.0.0",
+  "meta": { "templateCredsSetupCompleted": true },
+  "id": "cz-workflow-main",
+  "tags": [
+    { "name": "condominio" },
+    { "name": "whatsapp" },
+    { "name": "automacao" }
+  ]
+}

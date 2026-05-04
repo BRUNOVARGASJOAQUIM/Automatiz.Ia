@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CondoZap</title>
+  <style>
+    :root {
+      --bg:     #f1f5f9;
+      --white:  #ffffff;
+      --border: #e2e8f0;
+      --text:   #1e293b;
+      --muted:  #64748b;
+      --accent: #2563eb;
+      --green:  #16a34a;
+      --amber:  #d97706;
+      --red:    #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon {
+      width: 38px; height: 38px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: grid; place-items: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .brand-name  { font-weight: 800; font-size: 17px; }
+    .brand-condo { font-size: 12px; color: var(--muted); }
+    .header-right { display: flex; gap: 8px; align-items: center; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      border: none; cursor: pointer; border-radius: 8px;
+      font-size: 14px; font-weight: 600; padding: 9px 16px;
+      transition: 0.15s; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary  { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-ghost    { background: #f1f5f9; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: #e2e8f0; color: var(--text); }
+    .btn-sm       { padding: 7px 12px; font-size: 13px; }
+    .btn-icon     { background: #f1f5f9; border: 1px solid var(--border); color: var(--muted); width: 38px; height: 38px; border-radius: 8px; display: grid; place-items: center; font-size: 17px; cursor: pointer; }
+    .btn-icon:hover { background: #e2e8f0; color: var(--text); }
+    .btn-wpp      { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+    .btn-wpp:hover { background: #bbf7d0; }
+    .btn-resolver { background: var(--accent); color: #fff; }
+    .btn-resolver:hover { background: #1d4ed8; }
+    .btn-andamento { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+    .btn-andamento:hover { background: #fde68a; }
+
+    /* ── KPIs ── */
+    .kpi-strip { display: flex; gap: 12px; padding: 16px 20px; overflow-x: auto; }
+    .kpi-card  { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; min-width: 130px; flex-shrink: 0; }
+    .kpi-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-value { font-size: 32px; font-weight: 800; line-height: 1.1; margin-top: 4px; }
+    .kpi-card.blue  .kpi-value { color: var(--accent); }
+    .kpi-card.red   .kpi-value { color: var(--red); }
+    .kpi-card.green .kpi-value { color: var(--green); }
+
+    /* ── TABS ── */
+    .tab-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+    .tabs { display: flex; gap: 4px; padding: 0 20px; max-width: 800px; margin: 0 auto; }
+    .tab {
+      padding: 12px 16px; font-size: 14px; font-weight: 600;
+      color: var(--muted); cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: 0.15s; display: flex; align-items: center; gap: 6px;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .badge-tab {
+      font-size: 11px; font-weight: 700; padding: 1px 7px;
+      border-radius: 999px; background: #e2e8f0; color: var(--muted);
+    }
+    .tab.active .badge-tab { background: var(--accent); color: #fff; }
+    .badge-tab.urgente { background: #fee2e2; color: var(--red); }
+    .tab.active .badge-tab.urgente { background: var(--red); color: #fff; }
+
+    /* ── LISTA ── */
+    .lista { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; max-width: 800px; margin: 0 auto; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px;
+      transition: box-shadow 0.15s;
+    }
+    .card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .card.urgente    { border-left: 4px solid var(--red); }
+    .card.andamento  { border-left: 4px solid var(--amber); }
+
+    .card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .cat-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 700;
+    }
+    .urgente-tag {
+      font-size: 11px; font-weight: 700; color: var(--red);
+      background: #fee2e2; padding: 2px 8px; border-radius: 999px;
+    }
+    .card-time { margin-left: auto; font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+    .card-unit   { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .card-morador{ font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .card-desc   { font-size: 14px; color: var(--text); margin-bottom: 12px; line-height: 1.6; }
+    .card-actions{ display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ── EMPTY ── */
+    .empty { text-align: center; padding: 64px 20px; color: var(--muted); }
+    .empty-icon  { font-size: 48px; display: block; margin-bottom: 12px; }
+    .empty-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .empty-sub   { font-size: 13px; }
+
+    /* ── MODAL ── */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4); z-index: 100;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: 16px; padding: 24px;
+      width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .modal-hdr {
+      font-size: 17px; font-weight: 800; margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .btn-close {
+      background: #f1f5f9; border: none; color: var(--muted);
+      width: 32px; height: 32px; border-radius: 50%;
+      cursor: pointer; font-size: 16px; display: grid; place-items: center;
+    }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+    .field input, .field select, .field textarea {
+      width: 100%; background: #f8fafc; border: 1px solid var(--border);
+      color: var(--text); padding: 10px 12px; border-radius: 8px;
+      font-size: 14px; font-family: inherit; outline: none;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); background: #fff; }
+    .field textarea { resize: vertical; min-height: 80px; }
+    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+    .cfg-section { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .cfg-section:last-child { border-bottom: none; margin-bottom: 0; }
+    .cfg-section h4 { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+
+    /* ── TOAST ── */
+    .toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      background: #1e293b; color: #fff; border-radius: 10px;
+      padding: 12px 16px; font-size: 13px; font-weight: 500;
+      min-width: 200px; animation: slideIn 0.2s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    @keyframes slideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+    @media (max-width: 600px) {
+      .kpi-strip, .lista { padding: 12px; }
+      .tabs { padding: 0 12px; }
+      .header { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="brand">
+    <div class="brand-icon">🏢</div>
+    <div>
+      <div class="brand-name">CondoZap</div>
+      <div class="brand-condo" id="condoNome">Meu Condomínio</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn btn-ghost btn-sm" onclick="sincronizarSheets()" title="Sincronizar com Google Sheets">
+      <span id="syncIcon">🔄</span><span id="syncTime" style="font-size:11px;margin-left:2px;"></span>
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="abrirNova()">+ Nova</button>
+    <button class="btn-icon" onclick="abrirConfig()" title="Configurações">⚙️</button>
+  </div>
+</header>
+
+<!-- ── KPIs ── -->
+<div class="kpi-strip">
+  <div class="kpi-card blue">
+    <div class="kpi-label">Abertas</div>
+    <div class="kpi-value" id="kpiAbertas">0</div>
+  </div>
+  <div class="kpi-card red">
+    <div class="kpi-label">Urgentes</div>
+    <div class="kpi-value" id="kpiUrgentes">0</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-label">Resolvidas hoje</div>
+    <div class="kpi-value" id="kpiResolvidas">0</div>
+  </div>
+</div>
+
+<!-- ── TABS ── -->
+<div class="tab-bar">
+  <div class="tabs">
+    <div class="tab active" onclick="mudarTab('abertas',this)">
+      Abertas <span class="badge-tab urgente" id="cntAbertas">0</span>
+    </div>
+    <div class="tab" onclick="mudarTab('andamento',this)">
+      Em andamento <span class="badge-tab" id="cntAndamento">0</span>
+    </div>
+    <div class="tab" onclick="mudarTab('resolvidas',this)">
+      Resolvidas <span class="badge-tab" id="cntResolvidas">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── LISTA ── -->
+<div class="lista" id="lista"></div>
+
+<!-- ── MODAL: NOVA ── -->
+<div class="overlay" id="modalNova">
+  <div class="modal">
+    <div class="modal-hdr">Nova Solicitação <button class="btn-close" onclick="fechar('modalNova')">✕</button></div>
+    <div class="field"><label>Apartamento / Unidade</label><input id="nUnidade" placeholder="Ex: Bloco A / Apto 302"></div>
+    <div class="field"><label>Nome do morador</label><input id="nMorador" placeholder="Ex: João da Silva"></div>
+    <div class="field"><label>WhatsApp</label><input id="nWpp" type="tel" placeholder="+55 11 99999-9999"></div>
+    <div class="field">
+      <label>Categoria</label>
+      <select id="nCat">
+        <option>🔧 Manutenção</option>
+        <option>🏊 Áreas comuns</option>
+        <option>🚪 Portaria</option>
+        <option>🔊 Reclamação / Barulho</option>
+        <option>💰 Financeiro</option>
+        <option>👤 Falar com síndico</option>
+      </select>
+    </div>
+    <div class="field"><label>Descrição do problema</label><textarea id="nDesc" placeholder="Descreva o que está acontecendo..."></textarea></div>
+    <div class="field">
+      <label>Urgente?</label>
+      <select id="nPrio">
+        <option value="Média">Não — prioridade normal</option>
+        <option value="Alta">Sim — precisa de atenção rápida</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fechar('modalNova')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarNova()">Registrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: CONFIGURAÇÕES ── -->
+<div class="overlay" id="modalConfig">
+  <div class="modal">
+    <div class="modal-hdr">⚙️ Configurações <button class="btn-close" onclick="fechar('modalConfig')">✕</button></div>
+
+    <div class="cfg-section">
+      <h4>🏢 Condomínio</h4>
+      <div class="field"><label>Nome</label><input id="cfgNome" placeholder="Ex: Residencial das Flores"></div>
+    </div>
+
+    <div class="cfg-section">
+      <h4>📲 WhatsApp / n8n</h4>
+      <div class="field"><label>Webhook URL (n8n)</label><input id="cfgWebhook" placeholder="https://seu-n8n.com/webhook/cz-whatsapp"></div>
+      <div class="field"><label>Número WhatsApp Business</label><input id="cfgWpp" placeholder="+55 11 99999-9999"></div>
+    </div>
+
+    <div class="cfg-section">
+      <h4>👷 Responsáveis</h4>
+      <div class="field"><label>Síndico — WhatsApp</label><input id="cfgSindico" placeholder="+55 11 99999-9999"></div>
+      <div class="field"><label>Zelador — WhatsApp</label><input id="cfgZelador" placeholder="+55 11 99999-9999"></div>
+      <div class="field"><label>Portaria — WhatsApp</label><input id="cfgPortaria" placeholder="+55 11 99999-9999"></div>
+    </div>
+
+    <div class="cfg-section">
+      <h4>☁️ Google Sheets</h4>
+      <div class="field"><label>URL do CSV publicado</label><input id="cfgSheets" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv"></div>
+      <div class="field"><label>E-mail do síndico</label><input id="cfgEmail" placeholder="sindico@gmail.com"></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:4px;">Arquivo → Publicar na web → aba Solicitacoes → CSV</p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fechar('modalConfig')">Fechar</button>
+      <button class="btn btn-primary" onclick="salvarConfig()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOASTS ── -->
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+// ═══ DADOS ═══════════════════════════════════════════════
+const CAT = {
+  '🔧 Manutenção':          { icon:'🔧', bg:'#fef3c7', color:'#d97706' },
+  '🏊 Áreas comuns':        { icon:'🏊', bg:'#dbeafe', color:'#2563eb' },
+  '🚪 Portaria':            { icon:'🚪', bg:'#ede9fe', color:'#7c3aed' },
+  '🔊 Reclamação / Barulho':{ icon:'🔊', bg:'#fee2e2', color:'#dc2626' },
+  '💰 Financeiro':          { icon:'💰', bg:'#dcfce7', color:'#16a34a' },
+  '👤 Falar com síndico':   { icon:'👤', bg:'#f1f5f9', color:'#475569' },
+  // compatibilidade com tickets do WhatsApp
+  'Manutenção':    { icon:'🔧', bg:'#fef3c7', color:'#d97706' },
+  'Áreas comuns':  { icon:'🏊', bg:'#dbeafe', color:'#2563eb' },
+  'Portaria':      { icon:'🚪', bg:'#ede9fe', color:'#7c3aed' },
+  'Reclamação':    { icon:'🔊', bg:'#fee2e2', color:'#dc2626' },
+  'Financeiro':    { icon:'💰', bg:'#dcfce7', color:'#16a34a' },
+  'Síndico':       { icon:'👤', bg:'#f1f5f9', color:'#475569' },
+  'Segurança':     { icon:'🔐', bg:'#fee2e2', color:'#dc2626' },
+  'Barulho/Perturbação': { icon:'🔊', bg:'#fee2e2', color:'#dc2626' },
+  'Outros':        { icon:'📋', bg:'#f1f5f9', color:'#475569' },
+};
+
+const getSols = () => JSON.parse(localStorage.getItem('cz_sols') || '[]');
+const setSols = a  => localStorage.setItem('cz_sols', JSON.stringify(a));
+const getCfg  = () => JSON.parse(localStorage.getItem('cz_cfg')  || '{}');
+const setCfg  = c  => localStorage.setItem('cz_cfg',  JSON.stringify(c));
+
+function seed() {
+  if (getSols().length) return;
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const hm = h => new Date(Date.now() - h * 3600000)
+    .toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+  setSols([
+    { id:1001, unidade:'Bloco A / 302', morador:'Carlos Mendes',  whatsapp:'+5511991234567', categoria:'🔧 Manutenção',           descricao:'Torneira da cozinha está vazando bastante. Água escorrendo pelo armário de baixo.',           prioridade:'Alta',  status:'Aberta',      data:hoje, hora:hm(1) },
+    { id:1002, unidade:'Bloco B / 101', morador:'Ana Paula',      whatsapp:'+5511992345678', categoria:'🔊 Reclamação / Barulho',  descricao:'Barulho excessivo do apartamento acima desde a meia-noite. Música alta e muito barulho.',      prioridade:'Média', status:'Aberta',      data:hoje, hora:hm(2) },
+    { id:1003, unidade:'Bloco C / 401', morador:'Fernanda Souza', whatsapp:'+5511994567890', categoria:'🏊 Áreas comuns',          descricao:'Elevador do bloco C está fazendo barulho estranho ao subir. Parece algo mecânico.',            prioridade:'Alta',  status:'Em andamento',data:hoje, hora:hm(3) },
+    { id:1004, unidade:'Bloco A / 205', morador:'Roberto Lima',   whatsapp:'+5511993456789', categoria:'🚪 Portaria',              descricao:'Tenho uma encomenda grande na portaria desde segunda-feira e não consigo buscar durante o dia.', prioridade:'Média', status:'Aberta',      data:hoje, hora:hm(4) },
+    { id:1005, unidade:'Bloco B / 303', morador:'Marcos Oliveira',whatsapp:'+5511995678901', categoria:'👤 Falar com síndico',     descricao:'Gostaria de sugerir a instalação de câmera no estacionamento do subsolo.',                    prioridade:'Média', status:'Resolvida',   data:hoje, hora:hm(5) },
+  ]);
+}
+
+// ═══ TAB ════════════════════════════════════════════════
+let tabAtual = 'abertas';
+function mudarTab(tab, el) {
+  tabAtual = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderLista();
+}
+
+// ═══ RENDER ═════════════════════════════════════════════
+function renderTudo() {
+  const sols = getSols();
+  const hoje = new Date().toLocaleDateString('pt-BR');
+
+  const abertas    = sols.filter(s => s.status === 'Aberta');
+  const andamento  = sols.filter(s => s.status === 'Em andamento');
+  const resolvidas = sols.filter(s => s.status === 'Resolvida');
+  const urgentes   = sols.filter(s => s.prioridade === 'Alta' && s.status !== 'Resolvida');
+  const resHoje    = sols.filter(s => s.status === 'Resolvida' && s.data === hoje);
+
+  document.getElementById('kpiAbertas').textContent   = abertas.length;
+  document.getElementById('kpiUrgentes').textContent  = urgentes.length;
+  document.getElementById('kpiResolvidas').textContent= resHoje.length;
+  document.getElementById('cntAbertas').textContent   = abertas.length;
+  document.getElementById('cntAndamento').textContent = andamento.length;
+  document.getElementById('cntResolvidas').textContent= resolvidas.length;
+
+  renderLista();
+}
+
+function renderLista() {
+  const sols = getSols();
+  const map  = { abertas:'Aberta', andamento:'Em andamento', resolvidas:'Resolvida' };
+  let lista  = sols.filter(s => s.status === map[tabAtual]);
+
+  lista.sort((a, b) => {
+    const p = v => v === 'Alta' ? 0 : v === 'Urgente' ? 0 : 1;
+    return p(a.prioridade) - p(b.prioridade) || (b.id||0) - (a.id||0);
+  });
+
+  const cont = document.getElementById('lista');
+  if (!lista.length) {
+    const msgs = {
+      abertas:    { i:'✅', t:'Nenhuma solicitação aberta',  s:'Tudo em dia! Novas solicitações aparecem aqui.' },
+      andamento:  { i:'👍', t:'Nenhuma em andamento',         s:'Mova solicitações abertas para cá enquanto atende.' },
+      resolvidas: { i:'📋', t:'Nenhuma resolvida ainda',      s:'Solicitações finalizadas aparecem aqui.' },
+    };
+    const m = msgs[tabAtual];
+    cont.innerHTML = `<div class="empty"><span class="empty-icon">${m.i}</span><div class="empty-title">${m.t}</div><div class="empty-sub">${m.s}</div></div>`;
+    return;
+  }
+
+  cont.innerHTML = lista.map(s => {
+    const cat     = CAT[s.categoria] || { icon:'📋', bg:'#f1f5f9', color:'#475569' };
+    const urgente = (s.prioridade === 'Alta' || s.prioridade === 'Urgente') && s.status !== 'Resolvida';
+    const waSafe  = (s.whatsapp || '').replace(/\D/g, '');
+    const wa      = waSafe ? `<a href="https://wa.me/${waSafe}" target="_blank" class="btn btn-wpp btn-sm">💬 WhatsApp</a>` : '';
+
+    let acoes = '';
+    if (s.status === 'Aberta') {
+      acoes = `${wa}
+        <button class="btn btn-andamento btn-sm" onclick="mudarStatus(${s.id},'Em andamento')">🔄 Em andamento</button>
+        <button class="btn btn-resolver  btn-sm" onclick="mudarStatus(${s.id},'Resolvida')">✓ Resolver</button>`;
+    } else if (s.status === 'Em andamento') {
+      acoes = `${wa}
+        <button class="btn btn-resolver btn-sm" onclick="mudarStatus(${s.id},'Resolvida')">✓ Resolver</button>
+        <button class="btn btn-ghost    btn-sm" onclick="mudarStatus(${s.id},'Aberta')">↩ Reabrir</button>`;
+    } else {
+      acoes = `${wa}
+        <button class="btn btn-ghost btn-sm" onclick="mudarStatus(${s.id},'Aberta')">↩ Reabrir</button>`;
+    }
+
+    return `
+      <div class="card ${urgente ? 'urgente' : s.status === 'Em andamento' ? 'andamento' : ''}">
+        <div class="card-top">
+          <span class="cat-badge" style="background:${cat.bg};color:${cat.color};">${cat.icon} ${s.categoria}</span>
+          ${urgente ? '<span class="urgente-tag">⚡ URGENTE</span>' : ''}
+          <span class="card-time">${s.hora || s.data}</span>
+        </div>
+        <div class="card-unit">${s.unidade}</div>
+        <div class="card-morador">👤 ${s.morador}</div>
+        <div class="card-desc">${s.descricao}</div>
+        <div class="card-actions">${acoes}</div>
+      </div>`;
+  }).join('');
+}
+
+// ═══ AÇÕES ══════════════════════════════════════════════
+function mudarStatus(id, novo) {
+  const sols = getSols();
+  const i = sols.findIndex(s => s.id === id);
+  if (i < 0) return;
+  sols[i].status = novo;
+  setSols(sols);
+  renderTudo();
+  toast({ Resolvida:'✅ Resolvida!', 'Em andamento':'🔄 Em andamento', Aberta:'↩ Reaberta' }[novo] || novo);
+}
+
+// ═══ NOVA ═══════════════════════════════════════════════
+function abrirNova() {
+  ['nUnidade','nMorador','nWpp','nDesc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('nCat').selectedIndex  = 0;
+  document.getElementById('nPrio').selectedIndex = 0;
+  abrir('modalNova');
+}
+
+function salvarNova() {
+  const unidade = document.getElementById('nUnidade').value.trim();
+  const morador = document.getElementById('nMorador').value.trim();
+  const desc    = document.getElementById('nDesc').value.trim();
+  if (!unidade || !morador || !desc) { toast('⚠️ Preencha unidade, nome e descrição'); return; }
+
+  const sols = getSols();
+  const agora = new Date();
+  sols.unshift({
+    id:         Date.now(),
+    unidade, morador,
+    whatsapp:   document.getElementById('nWpp').value.trim(),
+    categoria:  document.getElementById('nCat').value,
+    descricao:  desc,
+    prioridade: document.getElementById('nPrio').value,
+    status:     'Aberta',
+    data:       agora.toLocaleDateString('pt-BR'),
+    hora:       agora.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }),
+  });
+  setSols(sols);
+  fechar('modalNova');
+  tabAtual = 'abertas';
+  document.querySelectorAll('.tab')[0].click();
+  renderTudo();
+  toast('✅ Solicitação registrada!');
+}
+
+// ═══ CONFIG ══════════════════════════════════════════════
+const CFG_IDS = ['cfgNome','cfgWebhook','cfgWpp','cfgSindico','cfgZelador','cfgPortaria','cfgSheets','cfgEmail'];
+
+function abrirConfig() {
+  const cfg = getCfg();
+  CFG_IDS.forEach(id => { if (cfg[id]) document.getElementById(id).value = cfg[id]; });
+  abrir('modalConfig');
+}
+
+function salvarConfig() {
+  const cfg = {};
+  CFG_IDS.forEach(id => { cfg[id] = document.getElementById(id).value; });
+  setCfg(cfg);
+  document.getElementById('condoNome').textContent = cfg.cfgNome || 'Meu Condomínio';
+  fechar('modalConfig');
+  toast('✅ Configurações salvas!');
+}
+
+// ═══ GOOGLE SHEETS SYNC ══════════════════════════════════
+function parseCSV(text) {
+  return text.trim().split('\n').map(line => {
+    const cols = []; let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur); cur = ''; }
+      else cur += ch;
+    }
+    cols.push(cur);
+    return cols;
+  });
+}
+
+async function sincronizarSheets() {
+  const url = getCfg().cfgSheets;
+  if (!url) { toast('⚠️ Configure a URL do Sheet nas Configurações'); return; }
+
+  const icon = document.getElementById('syncIcon');
+  if (icon) icon.textContent = '⏳';
+  try {
+    const sep  = url.includes('?') ? '&' : '?';
+    const resp = await fetch(url + sep + '_=' + Date.now());
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const rows = parseCSV(await resp.text());
+    if (rows.length < 2) { toast('ℹ️ Planilha ainda sem dados'); return; }
+
+    const hdr = rows[0].map(h => h.trim());
+    const get = (row, col) => (row[hdr.indexOf(col)] || '').trim();
+
+    const tickets = rows.slice(1).filter(r => r.some(c => c.trim())).map(row => ({
+      id:         Number(get(row,'id')) || Date.now(),
+      unidade:    get(row,'unidade') || get(row,'phone'),
+      morador:    get(row,'morador'),
+      whatsapp:   get(row,'phone'),
+      categoria:  get(row,'categoria') || 'Outros',
+      descricao:  get(row,'descricao'),
+      prioridade: get(row,'prioridade') === 'Urgente' ? 'Alta' : (get(row,'prioridade') || 'Média'),
+      status:     get(row,'status') || 'Aberta',
+      data:       get(row,'data'),
+      hora:       get(row,'hora'),
+      _sheet:     true,
+    }));
+
+    const manual = getSols().filter(s => !s._sheet);
+    setSols([...tickets, ...manual].sort((a,b) => (b.id||0)-(a.id||0)));
+    renderTudo();
+
+    const hora = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+    const el = document.getElementById('syncTime');
+    if (el) el.textContent = hora;
+    toast(`✅ ${tickets.length} ticket(s) sincronizado(s)`);
+  } catch(e) {
+    toast('❌ Erro: ' + e.message);
+  } finally {
+    if (icon) icon.textContent = '🔄';
+  }
+}
+
+// ═══ UTILS ═══════════════════════════════════════════════
+function abrir(id)  { document.getElementById(id).classList.add('open'); }
+function fechar(id) { document.getElementById(id).classList.remove('open'); }
+
+function toast(msg) {
+  const wrap = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+document.querySelectorAll('.overlay').forEach(o =>
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); })
+);
+
+// ═══ INIT ════════════════════════════════════════════════
+seed();
+const _cfg = getCfg();
+document.getElementById('condoNome').textContent = _cfg.cfgNome || 'Meu Condomínio';
+renderTudo();
+if (_cfg.cfgSheets) sincronizarSheets();
+</script>
+</body>
+</html>
